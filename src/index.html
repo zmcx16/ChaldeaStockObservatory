@@ -1,12 +1,26 @@
 <html>
   <head>
-    <title>Tray app Electron</title>
+    <title>Chaldea Stock Observatory</title>
     <link href="app.css" rel="stylesheet">
     <script src="app.js"></script>
   </head>
   <body>
-    <h1 id="title"></h1>
-    <div id="contents"></div>
+    <div class='main-wrap'>
+      <div id='main-toolbar'>
+        <div class='main-tool'><button id='screen-button' type="button"></button></div>
+        <div class='main-tool'><button id='notifications-button' type="button"></button></div>
+        <div class='main-tool'><button id='setting-button' type="button"></button></div>
+      </div>
+      <div id='second-toolbar'>
+        <div class='second-tool'><select id='group-list-select'><option value="List1">List1</option></select></div>
+        <div class='second-tool'><button id='add-del-button' type="button">Add / Del</button></div>
+        <div class='second-tool'><progress id='update-progress' value="0" max="100"></progress></div>
+        <div class='second-tool'><button id='update-button' type="button">Update</button></div>
+        <div class='second-tool'><button id='manage-button' type="button">Manage</button></div>
+      </div>
+      <div id='container'>
+      </div>
+    </div>
   </body>
 </html>
 

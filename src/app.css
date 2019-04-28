@@ -1,7 +1,48 @@
 body {
-  background: #E2D53C;
+  /*background: #E2D53C;*/
   color: #292929;
   font-family: 'Comic Sans', 'Comic Sans MS';
   font-size: 14pt;
-  font-style: italic;
 }
+
+.main-wrap{
+  padding: 0;
+}
+
+#main-toolbar{
+  margin: 10px 10px;
+  border: #292929 1px solid;
+}
+
+.main-tool{
+  margin: 15px 15px;
+  display: inline-block;
+}
+
+.main-tool button{
+  width:80px;
+  height:80px;
+  background: url(notification.png) no-repeat center;
+  background-size: 80%;
+}
+
+#second-toolbar{
+  margin: 10px 10px;
+  height: 40px;
+  display: grid;
+  grid-template-columns: 80px 120px 200px auto 70px;
+  /*justify-items: center;*/
+  align-items: center;
+}
+
+.second-tool > *{
+  height: 30px;
+}
+
+#container{
+  margin: 10px 10px;
+  border: #292929 1px solid;
+}
+
+
+

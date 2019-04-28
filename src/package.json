@@ -1,6 +1,8 @@
 {
-  "name"    : "tray-app-electron",
-  "version" : "1.0.0",
-  "main"    : "main.js"
+  "name": "tray-app-electron",
+  "version": "1.0.0",
+  "main": "main.js",
+  "devDependencies": {
+    "devtron": "^1.4.0"
+  }
 }
-
