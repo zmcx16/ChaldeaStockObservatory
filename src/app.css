@@ -52,10 +52,53 @@ button:focus {
   height: 30px;
 }
 
+
+/* cintainer */
 #container{
   margin: 10px 10px;
   border: #292929 1px solid;
 }
 
+ul {
+  padding: 0;
+  margin: 0;
+}
 
+input[type="checkbox"]{
+  width: 20px;
+  height: 20px;
+}
 
+.item, .drag-tab, .non-drag-tab {
+  vertical-align: middle;
+}
+
+.item, .header-item {
+  z-index: 1;
+  display: block;
+  margin: 0 0 6px;
+  border: 6px;
+  list-style: none;
+}
+
+.drag-tab, .non-drag-tab, .check-tab {
+  display: inline-block;
+  width: 26px;
+  padding: 6px;
+  vertical-align: middle;
+}
+
+.drag-tab{
+  cursor: move;
+}
+
+.non-drag-tab{
+  visibility: hidden;
+}
+
+.drag-tab :empty, .non-drag-tab :empty{
+  margin: 4px 0;
+  border-radius: 16px;
+  height: 4px;
+  background: gray;
+}
