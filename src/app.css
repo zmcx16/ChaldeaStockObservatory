@@ -33,10 +33,23 @@ button:focus {
 }
 
 .main-tool button{
-  width:80px;
-  height:80px;
+  width:70px;
+  height:70px;
+}
+
+#screen-button{
+  background: url(screen.png) no-repeat center;
+  background-size: 70%;
+}
+
+#notifications-button{
   background: url(notification.png) no-repeat center;
-  background-size: 80%;
+  background-size: 70%;
+}
+
+#setting-button{
+  background: url(setting.png) no-repeat center;
+  background-size: 70%;
 }
 
 #second-toolbar{
@@ -52,6 +65,20 @@ button:focus {
   height: 30px;
 }
 
+/* popup add window */
+#add-popup{
+    font-size: 16px;
+    display: none;
+    background-color: #fffacd;
+    width: 220px;
+    padding: 15px 15px;
+    /*left: 98px;*/
+    /*top: 127px;*/
+    position: fixed;
+    z-index: 2;
+    box-shadow: -2px 3px 25px #a9a9a9;
+}
+
 
 /* cintainer */
 #container{
@@ -65,8 +92,8 @@ ul {
 }
 
 input[type="checkbox"]{
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
 }
 
 .item, .drag-tab, .non-drag-tab {
@@ -75,7 +102,9 @@ input[type="checkbox"]{
 
 .item, .header-item {
   z-index: 1;
-  display: block;
+  display: grid;
+  grid-template-columns: 30px 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 2fr 1fr;
+  align-items: center;
   margin: 0 0 6px;
   border: 6px;
   list-style: none;
@@ -84,7 +113,7 @@ input[type="checkbox"]{
 .drag-tab, .non-drag-tab, .check-tab {
   display: inline-block;
   width: 26px;
-  padding: 6px;
+  padding: 3px;
   vertical-align: middle;
 }
 
@@ -101,4 +130,26 @@ input[type="checkbox"]{
   border-radius: 16px;
   height: 4px;
   background: gray;
+}
+
+.list-cell{
+  vertical-align: sub;
+  font-size: smaller;
+  text-align: right;
+  padding-right: 10px;
+}
+
+.draggable {
+  position: fixed;
+  box-shadow: 0 0 4px 2px blue;
+}
+
+#place-holder {
+  z-index: 0;
+  display: block;
+  min-height: 12px;
+  margin: 0 0 6px;
+  border-radius: 6px;
+  list-style: none;
+  opacity: .7;
 }

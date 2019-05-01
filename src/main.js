@@ -43,7 +43,7 @@ app.on('ready', () => {
   appIcon.setContextMenu(contextMenu);
 
   mainWindow = new BrowserWindow({
-    width: 800, height: 600/*,
+    width: 920, height: 600/*,
     minWidth: 640, minHeight: 480,
     maxWidth: 1024, maxHeight: 768*/
   });
