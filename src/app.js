@@ -13,6 +13,7 @@ $(document).ready(function () {
 
   initSetting();
   addPopupWindow();
+  delStock();
   dragList();
   reorder();
 
@@ -23,23 +24,45 @@ function initSetting() {
   $('.check-tab').attr('style', 'display: inline-block;');
 }
 
+function delStock(){
+
+  $('input[type=checkbox]').change(function () {
+    var atLeastOneIsChecked = $('input[name="stock-checkbox"]:checked').length > 0;
+    if (atLeastOneIsChecked){
+      $('#add-del-button').text('Del');
+    }
+    else{
+      $('#add-del-button').text('Add');
+    }
+  });
+
+  $('#add-del-button').click(function (event) {
+    if ($('#add-del-button')[0].innerText == 'Del') {
+      $.each($('input[name="stock-checkbox"]:checked'), function () {
+        $(this).closest('li').remove();
+      });
+      $('#add-del-button').text('Add');
+    }
+  });
+}
+
 function addPopupWindow(){
 
 
   $(document).click(function (event) {
-    if (!$(event.target).is("#add-del-button, #add-popup")) {
+    if (!$(event.target).is("#add-del-button, #add-popup, #search-bar, #add-symbol-input, #search-icon, .add-popup-text")) {
       $("#add-popup").hide();
     }
   });
 
   $('#add-del-button').click(function (event) {
-    var add_btn_loc = getPosition($('#add-del-button')[0]);
-    var offset_x = $('#add-del-button')[0].offsetWidth / 2;
-    var offset_y = $('#add-del-button')[0].offsetHeight;
-    $('#add-popup').attr('style', `display: block; left: ${add_btn_loc.x + offset_x}; top: ${add_btn_loc.y + offset_y};`);
-
+    if($('#add-del-button')[0].innerText == 'Add'){
+      var add_btn_loc = getPosition($('#add-del-button')[0]);
+      var offset_x = $('#add-del-button')[0].offsetWidth / 2;
+      var offset_y = $('#add-del-button')[0].offsetHeight;
+      $('#add-popup').attr('style', `display: block; left: ${add_btn_loc.x + offset_x}; top: ${add_btn_loc.y + offset_y};`);
+    }
   });
-
 }
 
 function reorder(){
