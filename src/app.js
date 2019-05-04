@@ -1,3 +1,5 @@
+var user_data = {};
+
 function triggerTrayCmd(event, param) {
   //document.getElementById('title').innerText = param.title;
   //document.getElementById('contents').innerText = param.contents;
@@ -8,23 +10,50 @@ ipc.on('triggerTrayCmd', triggerTrayCmd);
 
 window.$ = window.jQuery = require("./jquery-1.11.1.min.js");
 
-
 $(document).ready(function () {
 
+  ipc.send('loadListView');
+});
+
+ipc.on('saveListView_callback', (event, err) => {
+  console.log(err);
+});
+
+ipc.on('loadListView_callback', (event, err, data) => {
+  console.log(data);
+  user_data = data;
+
+  loadList();
+  loadData();
   initSetting();
+});
+
+
+/* main function */
+function initSetting() {
+
+  stockItemInitSetting();
   addPopupWindow();
-  delStock();
+  setDelStock();
   dragList();
   reorder();
 
-});
+  $("#group-list-select").on('change', function () {
+    console.log(this.value);
+    $(".item").remove();
+    loadData(this.value);
+    stockItemInitSetting();
+    setDelStock();
+    resetReorder();
+  });
+}
 
-function initSetting() {
+function stockItemInitSetting(){
   $('.drag-tab').attr('style', 'display: none;');
   $('.check-tab').attr('style', 'display: inline-block;');
 }
 
-function delStock(){
+function setDelStock(){
 
   $('input[type=checkbox]').change(function () {
     var atLeastOneIsChecked = $('input[name="stock-checkbox"]:checked').length > 0;
@@ -40,6 +69,7 @@ function delStock(){
     if ($('#add-del-button')[0].innerText == 'Del') {
       $.each($('input[name="stock-checkbox"]:checked'), function () {
         $(this).closest('li').remove();
+        ipc.send('saveListView', user_data['ListView']);
       });
       $('#add-del-button').text('Add');
     }
@@ -47,7 +77,6 @@ function delStock(){
 }
 
 function addPopupWindow(){
-
 
   $(document).click(function (event) {
     if (!$(event.target).is("#add-del-button, #add-popup, #search-bar, #add-symbol-input, #search-icon, .add-popup-text")) {
@@ -63,6 +92,12 @@ function addPopupWindow(){
       $('#add-popup').attr('style', `display: block; left: ${add_btn_loc.x + offset_x}; top: ${add_btn_loc.y + offset_y};`);
     }
   });
+}
+
+function resetReorder(){
+  if ($('#reorder-button').hasClass('reorder-running')) {
+    $('#reorder-button').click();
+  }
 }
 
 function reorder(){
@@ -82,6 +117,29 @@ function reorder(){
     }
 
   });
+}
+
+function loadList() {
+
+  $("#group-list-select").empty();
+  user_data['ListView'].forEach(function (item, index, array) {
+    var temp = '<option value="{name}">{name}</option>'.split("{name}").join(item.name);
+    $("#group-list-select").append(temp);
+  });
+}
+
+function loadData(name=''){
+
+  user_data['ListView'].forEach(function (item, index, array) {
+    if ((name === '' && index == 0) || name === item.name){
+      item.symbols.forEach(function (item, index, array) {
+        temp = stock_data_template.replace('{symbol}', item);
+        $("#list").append(temp);
+      });
+    }    
+  });
+
+  stockItemInitSetting();
 }
 
 function dragList() {
@@ -174,3 +232,25 @@ function getPosition(element) {
 
   return { x: x, y: y };
 }
+/* template data */
+var stock_data_template = `
+<li class="item">
+  <div class="check-tab">
+    <input type="checkbox" name="stock-checkbox">
+  </div>
+  <div class="drag-tab">
+    <div></div><div></div><div></div>
+  </div>
+  <span class="list-cell symbol">{symbol}</span>
+  <span class="list-cell open">{open}</span>
+  <span class="list-cell high">{high}</span>
+  <span class="list-cell low">{low}</span>
+  <span class="list-cell close">{close}</span>
+  <span class="list-cell change">{change}</span>
+  <span class="list-cell avg-3m">{avg-3m}</span>
+  <span class="list-cell volume">{volume}</span>
+  <span class="list-cell avg-3m">{avg-3m}</span>
+  <span class="list-cell strike-price-1y">{strike-price-1y}</span>
+  <span class="list-cell link"><a href="{link}">Link</a></span>
+</li>
+`;

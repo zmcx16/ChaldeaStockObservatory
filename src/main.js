@@ -5,27 +5,48 @@ const app = electron.app;
 const Menu = electron.Menu;
 const Tray = electron.Tray;
 const BrowserWindow = electron.BrowserWindow;
+const ipc = electron.ipcMain;
 
 let appIcon = null;
 let mainWindow = null;
 
 const tray_list = [
   {
-    title: 'Hidden / Show',
-    contents: 'Hidden / Show content'
+    cmd: 'HIDDEN_SHOW',
+    title: 'Hidden / Show'
   },
   {
-    title: 'Stock Screener',
-    contents: 'Stock Screener content'
+    cmd: 'SCREENER',
+    title: 'Stock Screener'
   },
   {
-    title: 'Notifications',
-    contents: 'Notifications content'
+    cmd: 'NOTIFICATION',
+    title: 'Notifications'
+  },
+  {
+    cmd: 'EXIT',
+    title: 'Exit'
   }
 ];
 
 function triggerTrayCmd(param) {
-  mainWindow.webContents.send('triggerTrayCmd', param);
+  //console.log(param);
+  switch (param.cmd){
+    case 'HIDDEN_SHOW':
+      if (mainWindow.isMinimized()){
+        mainWindow.show();
+      }else{
+        mainWindow.minimize();
+      }
+      break;
+    case 'EXIT':
+      app.quit();
+      break;
+    default:
+      mainWindow.webContents.send('triggerTrayCmd', param);
+      break;
+  }
+
 }
 
 function addCmdToMenu (cmd) {
@@ -35,6 +56,31 @@ function addCmdToMenu (cmd) {
     click: () => { triggerTrayCmd(cmd); }
   };
 }
+
+function saveListView(event, user_data){
+  console.log(user_data);
+  var err = 0;
+  event.sender.send('saveListView_callback', err);
+}
+
+function loadListView(event) {
+
+  var user_data = {};
+
+  user_data['ListView'] = [
+    {
+      name: 'List1',
+      symbols: ['AAPL', 'GOOG']
+    },
+    {
+      name: 'List2',
+      symbols: ['T', 'PSX']
+    }
+  ];
+
+  event.sender.send('loadListView_callback', 0, user_data);
+}
+
 
 app.on('ready', () => {
   appIcon = new Tray('icon@2x.png');
@@ -50,6 +96,13 @@ app.on('ready', () => {
 
   mainWindow.loadURL(`file://${__dirname}/index.html`);
   mainWindow.webContents.on('dom-ready', () => {
-    triggerTrayCmd(tray_list[0]);
+    //triggerTrayCmd(tray_list[0]);
   });
+
 });
+
+ipc.on('saveListView', saveListView);
+ipc.on('loadListView', loadListView);
+
+
+
