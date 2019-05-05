@@ -103,6 +103,7 @@ app.on('ready', () => {
 
 ipc.on('saveListView', saveListView);
 ipc.on('loadListView', loadListView);
+//ipc.on('RequestStock', requestStock);
 
 
 
