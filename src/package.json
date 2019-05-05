@@ -3,6 +3,7 @@
     "productName": "ChaldeaStockObservatory",
     "appId": "com.electron.ChaldeaStockObservatory-com-app",
     "copyright": "© 2019 zmcx16",
+    "compression": "maximum",
     "files": [
       "./**/*",
 	  "app/*"
@@ -10,14 +11,26 @@
     "directories": {
       "output": "./dist",
       "app": "./app"
+    },
+    "win": {
+      "icon": "ChaldeaStockObservatory.ico",
+      "target": "nsis",
+      "legalTrademarks": "zmcx16"
+    },
+    "mac": {
+      "icon": "ChaldeaStockObservatory.icns"
+    },
+    "linux": {
+        "icon": "ChaldeaStockObservatory.png"
     }
   },
   "scripts": {
     "start": "electron ./app/main.js",
     "dev": "electron --inspect=5858 ./app/main.js",
-    "packager": "electron-packager ./app ChaldeaStockObservatory --out ./dist --appVersion 1.0.0 --overwrite",
-    "build:dir": "electron-builder --dir",
-    "build": "electron-builder"
+    "build-dir": "electron-builder --dir",
+    "build-win": "electron-builder --win",
+    "build-mac": "electron-builder --mac",
+    "build-linux": "electron-builder --linux"
   },
   "devDependencies": {
     "electron": "^5.0.1",

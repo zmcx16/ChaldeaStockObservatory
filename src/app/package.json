@@ -2,7 +2,7 @@
   "name": "ChaldeaStockObservatory",
   "version": "1.0.0",
   "license": "MIT",
-  "description": "",
+  "description": "ChaldeaStockObservatory",
   "author": "zmcx16 <zmcx16@gmail.com>",
   "main": "./main.js",
   "scripts": {
