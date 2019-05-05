@@ -1,5 +1,6 @@
 'use strict';
 
+const path = require('path');
 const electron = require('electron');
 const app = electron.app;
 const Menu = electron.Menu;
@@ -83,12 +84,16 @@ function loadListView(event) {
 
 
 app.on('ready', () => {
-  appIcon = new Tray('icon@2x.png');
+  let icon = path.join(__dirname, "","icon@2x.png");
+  appIcon = new Tray(icon);
   let contextMenu = Menu.buildFromTemplate(tray_list.map(addCmdToMenu));
   appIcon.setToolTip('Chaldea Stock Observatory');
   appIcon.setContextMenu(contextMenu);
 
   mainWindow = new BrowserWindow({
+    webPreferences: {
+      nodeIntegration: true
+    },
     width: 920, height: 600/*,
     minWidth: 640, minHeight: 480,
     maxWidth: 1024, maxHeight: 768*/

@@ -1,0 +1,12 @@
+{
+  "name": "ChaldeaStockObservatory",
+  "version": "1.0.0",
+  "license": "MIT",
+  "description": "",
+  "author": "zmcx16 <zmcx16@gmail.com>",
+  "main": "./main.js",
+  "scripts": {
+    "start": "electron main.js",
+    "dev": "electron --inspect=5858 main.js"
+  }
+}
