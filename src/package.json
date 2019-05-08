@@ -6,7 +6,7 @@
     "compression": "maximum",
     "files": [
       "./**/*",
-	  "app/*"
+      "app/*"
     ],
     "directories": {
       "output": "./dist",
@@ -21,7 +21,7 @@
       "icon": "ChaldeaStockObservatory.icns"
     },
     "linux": {
-        "icon": "ChaldeaStockObservatory.png"
+      "icon": "ChaldeaStockObservatory.png"
     }
   },
   "scripts": {
@@ -35,5 +35,8 @@
   "devDependencies": {
     "electron": "^5.0.1",
     "electron-builder": "^20.39.0"
+  },
+  "dependencies": {
+    "zerorpc": "^0.9.8"
   }
 }

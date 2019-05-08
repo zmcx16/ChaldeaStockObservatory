@@ -112,3 +112,44 @@ ipc.on('loadListView', loadListView);
 
 
 
+
+let pyProc = null
+let pyPort = null
+
+const createPyProc = () => {
+  let port = '4242'
+  let script = path.join('I:\\work\\WORK\\ChaldeaStockObservatory\\ChaldeaStockObservatory-Console\\src', 'main.py')
+  pyProc = require('child_process').spawn('python', [script, port])
+  if (pyProc != null) {
+    console.log('child process success')
+  }
+}
+
+const exitPyProc = () => {
+  pyProc.kill()
+  pyProc = null
+  pyPort = null
+}
+
+app.on('ready', createPyProc)
+app.on('will-quit', exitPyProc)
+
+
+
+
+const zerorpc = require("zerorpc")
+let client = new zerorpc.Client()
+client.connect("tcp://127.0.0.1:4242")
+
+let formula = document.querySelector('#formula')
+let result = document.querySelector('#result')
+formula.addEventListener('input', () => {
+  client.invoke("calc", formula.value, (error, res) => {
+    if (error) {
+      console.error(error)
+    } else {
+      result.textContent = res
+    }
+  })
+})
+formula.dispatchEvent(new Event('input'))
