@@ -8,6 +8,8 @@ const Tray = electron.Tray;
 const BrowserWindow = electron.BrowserWindow;
 const ipc = electron.ipcMain;
 
+const child_process = require('child_process');
+
 let appIcon = null;
 let mainWindow = null;
 
@@ -111,45 +113,35 @@ ipc.on('loadListView', loadListView);
 //ipc.on('RequestStock', requestStock);
 
 
-
-
-let pyProc = null
-let pyPort = null
+let pyProc = null;
 
 const createPyProc = () => {
-  let port = '4242'
-  let script = path.join('I:\\work\\WORK\\ChaldeaStockObservatory\\ChaldeaStockObservatory-Console\\src', 'main.py')
-  pyProc = require('child_process').spawn('python', [script, port])
-  if (pyProc != null) {
-    console.log('child process success')
-  }
+
+  let script = path.join('I:\\work\\WORK\\ChaldeaStockObservatory\\ChaldeaStockObservatory-Core\\src', 'main.py');
+
+  pyProc = child_process.spawn('python', [script])
+
+  const zerorpc = require("zerorpc");
+  let client = new zerorpc.Client();
+  client.connect("tcp://127.0.0.1:7777");
+
+  client.invoke("test", "hello world", (error, res) => {
+    if (error) {
+      console.error(error);
+    } else {
+      console.log(res);
+    }
+  })
+
 }
 
 const exitPyProc = () => {
-  pyProc.kill()
-  pyProc = null
-  pyPort = null
+  console.log('kill pyProc');
+  pyProc.kill();
+  pyProc = null;
 }
 
-app.on('ready', createPyProc)
-app.on('will-quit', exitPyProc)
+app.on('ready', createPyProc);
+app.on('will-quit', exitPyProc);
 
 
-
-
-const zerorpc = require("zerorpc")
-let client = new zerorpc.Client()
-client.connect("tcp://127.0.0.1:4242")
-
-let formula = document.querySelector('#formula')
-let result = document.querySelector('#result')
-formula.addEventListener('input', () => {
-  client.invoke("calc", formula.value, (error, res) => {
-    if (error) {
-      console.error(error)
-    } else {
-      result.textContent = res
-    }
-  })
-})
-formula.dispatchEvent(new Event('input'))
