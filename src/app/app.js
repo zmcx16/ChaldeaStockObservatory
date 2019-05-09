@@ -6,14 +6,13 @@ function triggerTrayCmd(event, param) {
 }
 
 const ipc = require('electron').ipcRenderer;
-ipc.on('triggerTrayCmd', triggerTrayCmd);
-
+const zerorpc = require("zerorpc");
 window.$ = window.jQuery = require("./jquery-1.11.1.min.js");
 
-$(document).ready(function () {
+let client = new zerorpc.Client();
 
-  ipc.send('loadListView');
-});
+// ipc register
+ipc.on('triggerTrayCmd', triggerTrayCmd);
 
 ipc.on('saveListView_callback', (event, err) => {
   console.log(err);
@@ -28,8 +27,36 @@ ipc.on('loadListView_callback', (event, err, data) => {
   initSetting();
 });
 
+ipc.on('getPort_callback', (event, port) => {
 
-/* main function */
+  client.connect("tcp://127.0.0.1:" + port);
+
+  //test core communication
+  sendCmdToCore('test', 'HelloWorld', (error, res) => {
+    if (error) {
+      console.error(error);
+    } else {
+      console.log(res);
+    }
+  });
+});
+
+
+$(document).ready(function () {
+
+  ipc.send('loadListView');
+  ipc.send('getPort');
+});
+
+// zerorpc function
+function sendCmdToCore(cmd, msg, callback){
+  console.log('sendCmdToCore');
+  client.invoke(cmd, msg, (error, res) => {
+    callback(error, res);
+  });
+}
+
+// main function
 function initSetting() {
 
   stockItemInitSetting();
