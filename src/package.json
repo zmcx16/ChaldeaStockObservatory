@@ -1,16 +1,25 @@
 {
+  "name": "ChaldeaStockObservatory",
+  "version": "1.0.0",
+  "license": "MIT",
+  "description": "ChaldeaStockObservatory",
+  "author": "zmcx16 <zmcx16@gmail.com>",
+  "main": "./main.js",
+  "scripts": {
+    "start": "electron main.js",
+    "build-dir": "electron-builder --dir",
+    "build-win": "electron-builder --win",
+    "build-mac": "electron-builder --mac",
+    "build-linux": "electron-builder --linux"
+  },
   "build": {
     "productName": "ChaldeaStockObservatory",
     "appId": "com.electron.ChaldeaStockObservatory-com-app",
     "copyright": "© 2019 zmcx16",
     "compression": "maximum",
-    "files": [
-      "./**/*",
-      "app/*"
-    ],
+	"asar": false,
     "directories": {
-      "output": "./dist",
-      "app": "./app"
+      "output": "./dist"
     },
     "win": {
       "icon": "ChaldeaStockObservatory.ico",
@@ -23,14 +32,6 @@
     "linux": {
       "icon": "ChaldeaStockObservatory.png"
     }
-  },
-  "scripts": {
-    "start": "electron ./app/main.js",
-    "dev": "electron --inspect=5858 ./app/main.js",
-    "build-dir": "electron-builder --dir",
-    "build-win": "electron-builder --win",
-    "build-mac": "electron-builder --mac",
-    "build-linux": "electron-builder --linux"
   },
   "devDependencies": {
     "electron": "^5.0.1",
