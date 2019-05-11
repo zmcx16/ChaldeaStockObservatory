@@ -76,35 +76,11 @@ app.on('ready', () => {
       port = _port;
     }
 
-    let script = path.join(path.resolve(__dirname, '..', '..', '..'), 'ChaldeaStockObservatory-Core', 'src', 'main.py');
-    core_proc = child_process.spawn('python', [script, port])
+    let script = path.join(path.resolve(__dirname, '..', '..'), 'ChaldeaStockObservatory-Core', 'src', 'main.py');
+    core_proc = child_process.spawn('python', [script, '-port', port])
   });
 
 });
-
-
-ipc.on('saveListView', (event, user_data)=>{
-  console.log(user_data);
-  var err = 0;
-  event.sender.send('saveListView_callback', err);
-});
-
-ipc.on('loadListView', (event) => {
-  var user_data = {};
-  user_data['ListView'] = [
-    {
-      name: 'List1',
-      symbols: ['AAPL', 'GOOG']
-    },
-    {
-      name: 'List2',
-      symbols: ['T', 'PSX']
-    }
-  ];
-
-  event.sender.send('loadListView_callback', 0, user_data);
-});
-
 
 ipc.on('getPort', (event) => {
   console.log('get port: ' + port);

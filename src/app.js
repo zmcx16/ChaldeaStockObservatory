@@ -1,4 +1,5 @@
-var user_data = {};
+var stock_data = {};
+var config = {};
 
 function triggerTrayCmd(event, param) {
   //document.getElementById('title').innerText = param.title;
@@ -14,23 +15,10 @@ let client = new zerorpc.Client();
 // ipc register
 ipc.on('triggerTrayCmd', triggerTrayCmd);
 
-ipc.on('saveListView_callback', (event, err) => {
-  console.log(err);
-});
-
-ipc.on('loadListView_callback', (event, err, data) => {
-  console.log(data);
-  user_data = data;
-
-  loadList();
-  loadData();
-  initSetting();
-});
-
 ipc.on('getPort_callback', (event, port) => {
 
   client.connect("tcp://127.0.0.1:" + port);
-
+  
   //test core communication
   sendCmdToCore('test', 'HelloWorld', (error, res) => {
     if (error) {
@@ -39,13 +27,86 @@ ipc.on('getPort_callback', (event, port) => {
       console.log(res);
     }
   });
+
+  sendCmdToCore('get_realtime_stock', 'T', (error, res) => {
+    if (error) {
+      console.error(error);
+    } else {
+      console.log(res);
+      console.log(res['close']);
+    }
+  });
+
 });
 
 
 $(document).ready(function () {
 
-  ipc.send('loadListView');
   ipc.send('getPort');
+
+  stock_data['ListView'] = [
+    {
+      name: 'List1',
+      data: [{
+        symbol: 'AAPL',
+        open: '10',
+        high: '10',
+        low: '10',
+        close: '10',
+        changeP: '0.46%',
+        avg3mP: '10',
+        volume: '100K',
+        avg3mV: '200K',
+        strikeP1Y: '20 - 30',
+        link: 'https://project.zmcx16.moe'
+      }, {
+        symbol: 'GOOG',
+        open: '10',
+        high: '10',
+        low: '10',
+        close: '10',
+        changeP: '0.46%',
+        avg3mP: '10',
+        volume: '100K',
+        avg3mV: '200K',
+        strikeP1Y: '20 - 30',
+        link: 'https://project.zmcx16.moe'
+      }]
+    },
+    {
+      name: 'List2',
+      data: [{
+        symbol: 'T',
+        open: '10',
+        high: '10',
+        low: '10',
+        close: '10',
+        changeP: '0.46%',
+        avg3mP: '10',
+        volume: '100K',
+        avg3mV: '200K',
+        strikeP1Y: '20 - 30',
+        link: 'https://project.zmcx16.moe'
+      }, {
+        symbol: 'PSX',
+        open: '10',
+        high: '10',
+        low: '10',
+        close: '10',
+        changeP: '0.46%',
+        avg3mP: '10',
+        volume: '100K',
+        avg3mV: '200K',
+        strikeP1Y: '20 - 30',
+        link: 'https://project.zmcx16.moe'
+      }]
+    }
+  ];
+
+  loadList();
+  loadData();
+  initSetting();
+
 });
 
 // zerorpc function
@@ -66,7 +127,7 @@ function initSetting() {
   reorder();
 
   $("#group-list-select").on('change', function () {
-    console.log(this.value);
+    //console.log(this.value);
     $(".item").remove();
     loadData(this.value);
     stockItemInitSetting();
@@ -96,7 +157,7 @@ function setDelStock(){
     if ($('#add-del-button')[0].innerText == 'Del') {
       $.each($('input[name="stock-checkbox"]:checked'), function () {
         $(this).closest('li').remove();
-        ipc.send('saveListView', user_data['ListView']);
+        //ipc.send('saveListView', stock_data['ListView']);
       });
       $('#add-del-button').text('Add');
     }
@@ -149,18 +210,29 @@ function reorder(){
 function loadList() {
 
   $("#group-list-select").empty();
-  user_data['ListView'].forEach(function (item, index, array) {
-    var temp = '<option value="{name}">{name}</option>'.split("{name}").join(item.name);
+  stock_data['ListView'].forEach(function (item, index, array) {
+    let temp = '<option value="{name}">{name}</option>'.split("{name}").join(item.name);
     $("#group-list-select").append(temp);
   });
 }
 
 function loadData(name=''){
 
-  user_data['ListView'].forEach(function (item, index, array) {
-    if ((name === '' && index == 0) || name === item.name){
-      item.symbols.forEach(function (item, index, array) {
-        temp = stock_data_template.replace('{symbol}', item);
+  stock_data['ListView'].forEach(function (list_data, index, array) {
+    if ((name === '' && index == 0) || name === list_data.name){
+      list_data.data.forEach(function (item, index, array) {
+        let temp = stock_data_template.replace('{symbol}', item.symbol);
+        temp = temp.replace('{open}', item.open);
+        temp = temp.replace('{high}', item.high);
+        temp = temp.replace('{low}', item.low);
+        temp = temp.replace('{close}', item.close);
+        temp = temp.replace('{changeP}', item.changeP);
+        temp = temp.replace('{avg3mP}', item.avg3mP);
+        temp = temp.replace('{volume}', item.volume);
+        temp = temp.replace('{avg3mV}', item.avg3mV);
+        temp = temp.replace('{strikeP1Y}', item.strikeP1Y);
+        temp = temp.replace('{link}', item.link);
+
         $("#list").append(temp);
       });
     }    
@@ -273,11 +345,11 @@ var stock_data_template = `
   <span class="list-cell high">{high}</span>
   <span class="list-cell low">{low}</span>
   <span class="list-cell close">{close}</span>
-  <span class="list-cell change">{change}</span>
-  <span class="list-cell avg-3m">{avg-3m}</span>
+  <span class="list-cell changeP">{changeP}</span>
+  <span class="list-cell avg3mP">{avg3mP}</span>
   <span class="list-cell volume">{volume}</span>
-  <span class="list-cell avg-3m">{avg-3m}</span>
-  <span class="list-cell strike-price-1y">{strike-price-1y}</span>
+  <span class="list-cell avg3mV">{avg3mV}</span>
+  <span class="list-cell strikeP1Y">{strikeP1Y}</span>
   <span class="list-cell link"><a href="{link}">Link</a></span>
 </li>
 `;
