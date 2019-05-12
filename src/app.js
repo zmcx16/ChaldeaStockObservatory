@@ -43,7 +43,7 @@ ipc.on('getPort_callback', (event, port) => {
 $(document).ready(function () {
 
   ipc.send('getPort');
-
+  
   stock_data['ListView'] = [
     {
       name: 'List1',
@@ -102,6 +102,7 @@ $(document).ready(function () {
       }]
     }
   ];
+  
 
   $(document).click(function (event) {
     if (!$(event.target).is("#add-del-button, #add-popup, #search-bar, #add-symbol-input, #search-icon, .add-popup-text")) {
@@ -192,18 +193,22 @@ function initStockSetting() {
 
   $('#search-icon').click(function (event) {
 
-    sendCmdToCore('get_stock', 'T', (error, res) => {
-      if (error || res == null) {
-        console.error('error: ' + error);
-        console.error('res: ' + res);
-      } else {
-        var list_index = $("#group-list-select")[0].selectedIndex;
-        var stock = res;
-        stock.link = link_template.replace('{symbol}', stock['symbol']);
-        stock_data['ListView'][list_index].data.push(stock);
-        initStockSetting();
-      }
-    });
+    let symbols = $('#add-symbol-input')[0].value.split(",");
+    $('#add-symbol-input')[0].value = "";
+    symbols.forEach(function (symbol) {
+      sendCmdToCore('get_stock', symbol.trim(), (error, res) => {
+        if (error || res == null) {
+          console.error('error: ' + error);
+          console.error('res: ' + res);
+        } else {
+          var list_index = $("#group-list-select")[0].selectedIndex;
+          var stock = res;
+          stock.link = link_template.replace('{symbol}', stock['symbol']);
+          stock_data['ListView'][list_index].data.push(stock);
+          initStockSetting();
+        }
+      });
+    })
   })
 
   $('input[name="stock-checkbox"]').on('change', function () {
@@ -231,7 +236,7 @@ function initStockSetting() {
       var list_index = $("#group-list-select")[0].selectedIndex;
 
       $.each($('input[name="stock-checkbox"]:checked'), function () {
-        //$(this).closest('li').remove();
+
         var select_class_name = $(this).closest('li')[0].className;
         stock_data['ListView'][list_index].data.forEach(function (item, index, array) {
           var class_name = 'stock_' + item.symbol;
