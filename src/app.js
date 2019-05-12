@@ -103,142 +103,159 @@ $(document).ready(function () {
     }
   ];
 
-  loadList();
-  loadData();
-  initSetting();
-
-});
-
-// zerorpc function
-function sendCmdToCore(cmd, msg, callback){
-  console.log('sendCmdToCore');
-  client.invoke(cmd, msg, (error, res) => {
-    callback(error, res);
-  });
-}
-
-// main function
-function initSetting() {
-
-  stockItemInitSetting();
-  addPopupWindow();
-  setDelStock();
-  dragList();
-  reorder();
-
-  $("#group-list-select").on('change', function () {
-    //console.log(this.value);
-    $(".item").remove();
-    loadData(this.value);
-    stockItemInitSetting();
-    setDelStock();
-    resetReorder();
-  });
-}
-
-function stockItemInitSetting(){
-  $('.drag-tab').attr('style', 'display: none;');
-  $('.check-tab').attr('style', 'display: inline-block;');
-}
-
-function setDelStock(){
-
-  $('input[type=checkbox]').change(function () {
-    var atLeastOneIsChecked = $('input[name="stock-checkbox"]:checked').length > 0;
-    if (atLeastOneIsChecked){
-      $('#add-del-button').text('Del');
-    }
-    else{
-      $('#add-del-button').text('Add');
-    }
-  });
-
-  $('#add-del-button').click(function (event) {
-    if ($('#add-del-button')[0].innerText == 'Del') {
-      $.each($('input[name="stock-checkbox"]:checked'), function () {
-        $(this).closest('li').remove();
-        //ipc.send('saveListView', stock_data['ListView']);
-      });
-      $('#add-del-button').text('Add');
-    }
-  });
-}
-
-function addPopupWindow(){
-
   $(document).click(function (event) {
     if (!$(event.target).is("#add-del-button, #add-popup, #search-bar, #add-symbol-input, #search-icon, .add-popup-text")) {
       $("#add-popup").hide();
     }
   });
 
+  loadList();
+  initStockSetting();
+  dragList();
+
+  $('#reorder-button').click(function () {
+    if ($('#reorder-button').hasClass('reorder-running')) {
+      $('#reorder-button').removeClass('reorder-running');
+      $('#reorder-button').text('Reorder');
+      $('.drag-tab').attr('style', 'display: none;');
+      $('.check-tab').attr('style', 'display: inline-block;');
+    }
+    else {
+      $('#reorder-button').addClass('reorder-running');
+      $('#reorder-button').text('Reordering');
+      $('.drag-tab').attr('style', 'display: inline-block;');
+      $('.check-tab').attr('style', 'display: none;');
+    }
+
+    return;
+  });
+
+  $("#group-list-select").on('change', function () {
+    initStockSetting();
+  });
+});
+
+// zerorpc function
+function sendCmdToCore(cmd, msg, callback){
+  console.log('sendCmdToCore: ' + cmd);
+  client.invoke(cmd, msg, (error, res) => {
+    callback(error, res);
+  });
+}
+
+// main function
+function initStockSetting() {
+
+  //unbind event
+  $('#search-icon').unbind("click");
+  $('input[name="stock-checkbox"]').unbind("change");
+  $('#add-del-button').unbind("click");
+  
+
+  // reset status
+  if ($('#reorder-button').hasClass('reorder-running')) {
+    $('#reorder-button').click();
+  }
+  $('#add-del-button').text('Add');
+  $("#add-popup").hide();
+  $(":checkbox").attr("checked", false);
+
+  // reset stock data
+  $(".item").remove();
+  var list_name = $("#group-list-select")[0].value;
+  stock_data['ListView'].forEach(function (list_data, index, array) {
+    if (list_name === list_data.name) {
+      list_data.data.forEach(function (item, index, array) {
+        var class_name = 'stock_' + item.symbol;
+        if ($("." + class_name).length == 0) {
+          let temp = stock_data_template.replace('{name}', item.symbol);
+          temp = temp.replace('{symbol}', item.symbol);
+          temp = temp.replace('{open}', item.open);
+          temp = temp.replace('{high}', item.high);
+          temp = temp.replace('{low}', item.low);
+          temp = temp.replace('{close}', item.close);
+          temp = temp.replace('{changeP}', item.changeP);
+          temp = temp.replace('{avg3mP}', item.avg3mP);
+          temp = temp.replace('{volume}', item.volume);
+          temp = temp.replace('{avg3mV}', item.avg3mV);
+          temp = temp.replace('{strikeP1Y}', item.strikeP1Y);
+          temp = temp.replace('{link}', item.link);
+
+          $("#list").append(temp);
+        }
+      });
+    }
+  });
+
+  $('.drag-tab').attr('style', 'display: none;');
+  $('.check-tab').attr('style', 'display: inline-block;');
+
+  $('#search-icon').click(function (event) {
+
+    sendCmdToCore('get_stock', 'T', (error, res) => {
+      if (error || res == null) {
+        console.error('error: ' + error);
+        console.error('res: ' + res);
+      } else {
+        var list_index = $("#group-list-select")[0].selectedIndex;
+        var stock = res;
+        stock.link = link_template.replace('{symbol}', stock['symbol']);
+        stock_data['ListView'][list_index].data.push(stock);
+        initStockSetting();
+      }
+    });
+  })
+
+  $('input[name="stock-checkbox"]').on('change', function () {
+    var atLeastOneIsChecked = $('input[name="stock-checkbox"]:checked').length > 0;
+    if (atLeastOneIsChecked) {
+      $('#add-del-button').text('Del');
+    }
+    else {
+      $('#add-del-button').text('Add');
+    }
+
+    return;
+  });
+
   $('#add-del-button').click(function (event) {
-    if($('#add-del-button')[0].innerText == 'Add'){
+
+    if ($('#add-del-button')[0].innerText == 'Add') {
       var add_btn_loc = getPosition($('#add-del-button')[0]);
       var offset_x = $('#add-del-button')[0].offsetWidth / 2;
       var offset_y = $('#add-del-button')[0].offsetHeight;
       $('#add-popup').attr('style', `display: block; left: ${add_btn_loc.x + offset_x}; top: ${add_btn_loc.y + offset_y};`);
     }
-  });
-}
+    else if ($('#add-del-button')[0].innerText == 'Del') {
+      var list_name = $("#group-list-select")[0].value;
+      var list_index = $("#group-list-select")[0].selectedIndex;
 
-function resetReorder(){
-  if ($('#reorder-button').hasClass('reorder-running')) {
-    $('#reorder-button').click();
-  }
-}
-
-function reorder(){
-
-  $('#reorder-button').click(function () { 
-    if ($('#reorder-button').hasClass('reorder-running')) {
-      $('#reorder-button').removeClass('reorder-running');
-      $('#reorder-button').text('Reorder');
-      $('.drag-tab').attr('style','display: none;');
-      $('.check-tab').attr('style', 'display: inline-block;');
+      $.each($('input[name="stock-checkbox"]:checked'), function () {
+        //$(this).closest('li').remove();
+        var select_class_name = $(this).closest('li')[0].className;
+        stock_data['ListView'][list_index].data.forEach(function (item, index, array) {
+          var class_name = 'stock_' + item.symbol;
+          if (select_class_name.indexOf(class_name) != -1) {
+            stock_data['ListView'][list_index].data.splice(index, 1);
+          }
+        });
+      });
+      $('#add-del-button').text('Add');
+      initStockSetting();
     }
-    else{
-      $('#reorder-button').addClass('reorder-running');
-      $('#reorder-button').text('Reordering');
-      $('.drag-tab').attr('style', 'display: inline-block;');
-      $('.check-tab').attr('style', 'display: none;');      
-    }
-
+    
+    return;
   });
 }
 
 function loadList() {
 
+  $(".item").remove();
   $("#group-list-select").empty();
   stock_data['ListView'].forEach(function (item, index, array) {
     let temp = '<option value="{name}">{name}</option>'.split("{name}").join(item.name);
     $("#group-list-select").append(temp);
   });
-}
-
-function loadData(name=''){
-
-  stock_data['ListView'].forEach(function (list_data, index, array) {
-    if ((name === '' && index == 0) || name === list_data.name){
-      list_data.data.forEach(function (item, index, array) {
-        let temp = stock_data_template.replace('{symbol}', item.symbol);
-        temp = temp.replace('{open}', item.open);
-        temp = temp.replace('{high}', item.high);
-        temp = temp.replace('{low}', item.low);
-        temp = temp.replace('{close}', item.close);
-        temp = temp.replace('{changeP}', item.changeP);
-        temp = temp.replace('{avg3mP}', item.avg3mP);
-        temp = temp.replace('{volume}', item.volume);
-        temp = temp.replace('{avg3mV}', item.avg3mV);
-        temp = temp.replace('{strikeP1Y}', item.strikeP1Y);
-        temp = temp.replace('{link}', item.link);
-
-        $("#list").append(temp);
-      });
-    }    
-  });
-
-  stockItemInitSetting();
 }
 
 function dragList() {
@@ -269,6 +286,7 @@ function dragList() {
       my = mouse.clientY;
 
       var item = $(".item");
+
       for (i = item.length - 1; i >= 0; i--) {
         if (!$(item[i]).hasClass("draggable")) {
           //if(true) {
@@ -289,7 +307,6 @@ function dragList() {
         }
       }
       $(".draggable").css({ "top": my - y });//, "left" : mx - x });
-
     }
   });
   //mouse release event
@@ -331,9 +348,13 @@ function getPosition(element) {
 
   return { x: x, y: y };
 }
+
+/* common data */
+const link_template = 'https://hk.finance.yahoo.com/quote/{symbol}';
+
 /* template data */
-var stock_data_template = `
-<li class="item">
+const stock_data_template = `
+<li class="item stock_{name}">
   <div class="check-tab">
     <input type="checkbox" name="stock-checkbox">
   </div>
