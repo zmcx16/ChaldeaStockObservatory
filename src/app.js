@@ -1,19 +1,39 @@
+// Def
+const USER_DATA = 'user_data';
+const STOCK_DATA_FILE_NAME = 'stock_data.json';
+
+// var
 var stock_data = {};
 var config = {};
 
-function triggerTrayCmd(event, param) {
-  //document.getElementById('title').innerText = param.title;
-  //document.getElementById('contents').innerText = param.contents;
-}
-
-const ipc = require('electron').ipcRenderer;
+const electron = require('electron');
+const fs = require('fs');
+const path = require('path');
+const ipc = electron.ipcRenderer;
+const app = electron.remote.app;
 const zerorpc = require("zerorpc");
 window.$ = window.jQuery = require("./jquery-1.11.1.min.js");
 
-let client = new zerorpc.Client();
+var client = new zerorpc.Client();
+var app_path = app.getAppPath();
+
+var root_path = '';
+if (app_path.indexOf('default_app.asar') != -1)  //dev mode
+  root_path = path.resolve(path.dirname(app_path), '..', '..', '..', '..');
+else  //binary mode
+  root_path =path.resolve(path.dirname(app_path), '..');
+
+var user_data_path = path.join(root_path,USER_DATA);
+if (!fs.existsSync(user_data_path)) {
+  fs.mkdirSync(user_data_path);
+}
+
 
 // ipc register
-ipc.on('triggerTrayCmd', triggerTrayCmd);
+ipc.on('triggerTrayCmd', (event, param) =>{
+  //document.getElementById('title').innerText = param.title;
+  //document.getElementById('contents').innerText = param.contents;
+});
 
 ipc.on('getPort_callback', (event, port) => {
 
@@ -42,67 +62,21 @@ ipc.on('getPort_callback', (event, port) => {
 
 $(document).ready(function () {
 
+  loadStockDataSync();
+  if (Object.keys(stock_data).length === 0){
+    stock_data['ListView'] = [
+      {
+        name: 'List1',
+        data: []
+      },
+      {
+        name: 'List2',
+        data: []
+      }
+    ];
+  }
+ 
   ipc.send('getPort');
-  
-  stock_data['ListView'] = [
-    {
-      name: 'List1',
-      data: [{
-        symbol: 'AAPL',
-        open: '10',
-        high: '10',
-        low: '10',
-        close: '10',
-        changeP: '0.46%',
-        avg3mP: '10',
-        volume: '100K',
-        avg3mV: '200K',
-        strikeP1Y: '20 - 30',
-        link: 'https://project.zmcx16.moe'
-      }, {
-        symbol: 'GOOG',
-        open: '10',
-        high: '10',
-        low: '10',
-        close: '10',
-        changeP: '0.46%',
-        avg3mP: '10',
-        volume: '100K',
-        avg3mV: '200K',
-        strikeP1Y: '20 - 30',
-        link: 'https://project.zmcx16.moe'
-      }]
-    },
-    {
-      name: 'List2',
-      data: [{
-        symbol: 'T',
-        open: '10',
-        high: '10',
-        low: '10',
-        close: '10',
-        changeP: '0.46%',
-        avg3mP: '10',
-        volume: '100K',
-        avg3mV: '200K',
-        strikeP1Y: '20 - 30',
-        link: 'https://project.zmcx16.moe'
-      }, {
-        symbol: 'PSX',
-        open: '10',
-        high: '10',
-        low: '10',
-        close: '10',
-        changeP: '0.46%',
-        avg3mP: '10',
-        volume: '100K',
-        avg3mV: '200K',
-        strikeP1Y: '20 - 30',
-        link: 'https://project.zmcx16.moe'
-      }]
-    }
-  ];
-  
 
   $(document).click(function (event) {
     if (!$(event.target).is("#add-del-button, #add-popup, #search-bar, #add-symbol-input, #search-icon, .add-popup-text")) {
@@ -145,6 +119,23 @@ function sendCmdToCore(cmd, msg, callback){
 }
 
 // main function
+function loadStockDataSync() {
+  let file_path = path.join(user_data_path, STOCK_DATA_FILE_NAME);
+  if (fs.existsSync(file_path)){
+    let data = fs.readFileSync(file_path, 'utf8');
+    stock_data = JSON.parse(data);
+  }
+}
+
+function saveStockDataASync(){
+  fs.writeFile(path.join(user_data_path, STOCK_DATA_FILE_NAME), JSON.stringify(stock_data), 'utf8', (err) => {
+    if (err) 
+      console.error('save ' + STOCK_DATA_FILE_NAME + ' failed, err = ' + err);
+    else
+      console.log(STOCK_DATA_FILE_NAME + ' has been saved.');
+  });
+}
+
 function initStockSetting() {
 
   //unbind event
@@ -205,6 +196,7 @@ function initStockSetting() {
           var stock = res;
           stock.link = link_template.replace('{symbol}', stock['symbol']);
           stock_data['ListView'][list_index].data.push(stock);
+          saveStockDataASync();
           initStockSetting();
         }
       });
