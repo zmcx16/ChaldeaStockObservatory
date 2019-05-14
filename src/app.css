@@ -56,7 +56,7 @@ button:focus {
   margin: 10px 10px;
   height: 40px;
   display: grid;
-  grid-template-columns: 80px 60px 140px 200px auto 70px;
+  grid-template-columns: 80px 60px 140px 200px auto 80px;
   /*justify-items: center;*/
   align-items: center;
 }
@@ -76,7 +76,7 @@ button:focus {
     /*top: 127px;*/
     position: fixed;
     z-index: 2;
-    box-shadow: -2px 3px 25px #a9a9a9;
+    box-shadow: 0 2px 4px rgba(0,0,0,.2);
 }
 
 #add-symbol-input{
@@ -93,7 +93,31 @@ button:focus {
   padding: 2px;
 }
 
-/* cintainer */
+/* popup manage window */
+#manage-popup{
+    font-size: 16px;
+    display: none;
+    background-color: ivory;
+    width: 190px;
+    /*left: 98px;*/
+    /*top: 127px;*/
+    position: fixed;
+    z-index: 2;
+    box-shadow: 0 2px 4px rgba(0,0,0,.2);
+}
+
+.manage-popup-text{
+  cursor: pointer;
+  padding: 10px 20px;
+  margin: 0px;
+}
+
+.manage-popup-text:hover{
+  color: #0081f2;
+}
+
+
+/* container */
 #container{
   margin: 10px 10px;
   border: #292929 1px solid;

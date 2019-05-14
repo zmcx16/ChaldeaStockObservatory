@@ -82,6 +82,10 @@ $(document).ready(function () {
     if (!$(event.target).is("#add-del-button, #add-popup, #search-bar, #add-symbol-input, #search-icon, .add-popup-text")) {
       $("#add-popup").hide();
     }
+
+    if (!$(event.target).is("#manage-button, #manage-popup, .manage-popup-text")) {
+      $("#manage-popup").hide();
+    }
   });
 
   loadList();
@@ -90,26 +94,30 @@ $(document).ready(function () {
 
   $('#reorder-button').click(function () {
     if ($('#reorder-button').hasClass('reorder-running')) {
-      $('#reorder-button').removeClass('reorder-running');
-      $('#reorder-button').text('Reorder');
-      $('.drag-tab').attr('style', 'display: none;');
-      $('.check-tab').attr('style', 'display: inline-block;');
+
+      ResetReorderButton();
 
       let list_index = $("#group-list-select")[0].selectedIndex;
       let now_stocks = stock_data['ListView'][list_index].data;
-
-      console.log($('.item'));
+      
+      now_stocks.length = 0
+      
       let item_list = $('.item');
       item_list.each(function (row_index) {
         let item = $(item_list[row_index]).children('.list-cell');
-        //$($($('.item')[index]).children('.list-cell')[0]).attr('class').split(' ').slice(-1)[0];
+        let stock = {};
         item.each(function (col_index) {
           let col_name = $(item[col_index]).attr('class').split(' ').slice(-1)[0];
-          console.log(col_name);
-        });
+          let value = '';
+          if (col_name==='link')
+            value = $($(item[col_index])[0].children[0]).attr('href');
+          else
+            value = $(item[col_index])[0].textContent;
 
+          stock[col_name] = value;
+        }); 
+        now_stocks.push(stock);
       });
-      
     }
     else {
       $('#reorder-button').addClass('reorder-running');
@@ -119,6 +127,13 @@ $(document).ready(function () {
     }
 
     return;
+  });
+
+  $('#manage-button').click(function (event) {
+    var manage_btn_loc = getPosition($('#manage-button')[0]);
+    var offset_x = $('#manage-button')[0].offsetWidth - parseInt($($('#manage-popup')[0]).css("width"));
+    var offset_y = $('#manage-button')[0].offsetHeight;
+    $('#manage-popup').attr('style', `display: block; left: ${manage_btn_loc.x + offset_x}; top: ${manage_btn_loc.y + offset_y};`);
   });
 
   $("#group-list-select").on('change', function () {
@@ -135,6 +150,13 @@ function sendCmdToCore(cmd, msg, callback){
 }
 
 // main function
+function ResetReorderButton(){
+  $('#reorder-button').removeClass('reorder-running');
+  $('#reorder-button').text('Reorder');
+  $('.drag-tab').attr('style', 'display: none;');
+  $('.check-tab').attr('style', 'display: inline-block;');
+}
+
 function loadStockDataSync() {
   let file_path = path.join(user_data_path, STOCK_DATA_FILE_NAME);
   if (fs.existsSync(file_path)){
@@ -161,11 +183,10 @@ function initStockSetting() {
   
 
   // reset status
-  if ($('#reorder-button').hasClass('reorder-running')) {
-    $('#reorder-button').click();
-  }
+  ResetReorderButton();
   $('#add-del-button').text('Add');
   $("#add-popup").hide();
+  $("#manage-popup").hide();
   $(":checkbox").attr("checked", false);
 
   // reset stock data
