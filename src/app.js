@@ -94,6 +94,22 @@ $(document).ready(function () {
       $('#reorder-button').text('Reorder');
       $('.drag-tab').attr('style', 'display: none;');
       $('.check-tab').attr('style', 'display: inline-block;');
+
+      let list_index = $("#group-list-select")[0].selectedIndex;
+      let now_stocks = stock_data['ListView'][list_index].data;
+
+      console.log($('.item'));
+      let item_list = $('.item');
+      item_list.each(function (row_index) {
+        let item = $(item_list[row_index]).children('.list-cell');
+        //$($($('.item')[index]).children('.list-cell')[0]).attr('class').split(' ').slice(-1)[0];
+        item.each(function (col_index) {
+          let col_name = $(item[col_index]).attr('class').split(' ').slice(-1)[0];
+          console.log(col_name);
+        });
+
+      });
+      
     }
     else {
       $('#reorder-button').addClass('reorder-running');
