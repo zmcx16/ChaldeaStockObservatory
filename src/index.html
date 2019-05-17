@@ -1,6 +1,11 @@
 <html>
   <head>
     <title>Chaldea Stock Observatory</title>
+    <link rel="stylesheet" href="./node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <script>
+      window.$ = window.jQuery = require('./node_modules/jquery/dist/jquery.min.js');
+      require('./node_modules/bootstrap/dist/js/bootstrap.min.js');
+    </script>
     <link href="app.css" rel="stylesheet">
     <script src="app.js"></script>
   </head>
@@ -30,8 +35,8 @@
         <div class="second-tool"><button id="update-button" type="button">Update</button></div>
         <div class="second-tool"><button class="text-btn" id="manage-button">Manage</button></div>
         <div id="manage-popup">
-          <p class="manage-popup-text">New Stock List</p>
-          <p class="manage-popup-text">Delete Current List</p>
+          <p class="manage-popup-text" id="new-list-button" data-toggle="modal" data-target="#add-new-list-dialog">New Stock List</p>
+          <p class="manage-popup-text" id="del-list-button">Delete Current List</p>
         </div>
       </div>
       <div id="container">
@@ -41,10 +46,10 @@
               <div></div><div></div><div></div>
             </div>
             <span class="list-cell symbol">Symbol</span>
-            <span class="list-cell open">Open</span>
-            <span class="list-cell high">High</span>
-            <span class="list-cell low">Low</span>
-            <span class="list-cell close">Close</span>
+            <span class="list-cell openP">Open</span>
+            <span class="list-cell highP">High</span>
+            <span class="list-cell lowP">Low</span>
+            <span class="list-cell closeP">Close</span>
             <span class="list-cell changeP">Change</span>
             <span class="list-cell avg3mP">Avg(3m)</span>
             <span class="list-cell volume">Volume</span>
@@ -55,6 +60,27 @@
         </ul>
       </div>
     </div>
+    <div id="add-new-list-dialog" class="modal inmodal fade" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static"
+      data-keyboard="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <div class="modal-title ">Create Stock List</div>
+            <div id="add-new-list-invalid" style="display:none;">This List Name is invalid!</div>
+            <button type="button" class="close add-new-list-close" data-dismiss="modal">
+              <span>&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <input type="text" id="add-new-list-text" placeholder=" List Name" name="new-list">
+          </div>
+          <div class="modal-footer">
+            <button class="btn anime-btn ok-cancel-btn" id="add-new-list-btn">OK</button>
+            <button class="btn anime-btn ok-cancel-btn add-new-list-close" data-dismiss="modal">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div> 
   </body>
 </html>
 

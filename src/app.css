@@ -18,6 +18,36 @@ button:focus {
   color: #0081f2;
 }
 
+.anime-btn{
+  border: #0081f2 1px solid;
+  color: #0081f2;
+}
+
+.anime-btn:hover{
+  background: #0081f2;
+  color: #ffffff;
+}
+
+.ok-cancel-btn{
+  width: 80px;
+}
+
+.modal-footer>:not(:last-child) {
+  margin-right: 20px;
+}
+
+.modal-header {
+  border-bottom: unset;
+}
+
+.modal-footer {
+  border-top: unset;
+}
+
+#add-new-list-text{
+  width: 100%;
+}
+
 .main-wrap{
   padding: 0;
 }
@@ -56,7 +86,7 @@ button:focus {
   margin: 10px 10px;
   height: 40px;
   display: grid;
-  grid-template-columns: 80px 60px 140px 200px auto 80px;
+  grid-template-columns: 120px 60px 140px 200px auto 80px;
   /*justify-items: center;*/
   align-items: center;
 }
@@ -65,12 +95,21 @@ button:focus {
   height: 30px;
 }
 
+#group-list-select{
+  font-size: 14px;
+  width: 100px;
+}
+
+#update-button{
+  font-size: 14px;
+}
+
 /* popup add window */
 #add-popup{
     font-size: 16px;
     display: none;
     background-color: ivory;
-    width: 210px;
+    width: 230px;
     padding: 15px 15px;
     /*left: 98px;*/
     /*top: 127px;*/
@@ -79,18 +118,23 @@ button:focus {
     box-shadow: 0 2px 4px rgba(0,0,0,.2);
 }
 
+#search-bar{
+  margin-bottom: 15px;
+}
+
 #add-symbol-input{
   font-size: 16px;
+  width: 190px;
 }
 
 #search-icon{
   width: 22px;
-  height: 22px;
+  height: 30px;
   position: fixed;
   cursor: pointer;
   position: absolute;
-  right: 24px;
-  padding: 2px;
+  right: 26px;
+  padding: 0px;
 }
 
 /* popup manage window */

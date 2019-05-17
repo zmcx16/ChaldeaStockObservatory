@@ -76,6 +76,7 @@ app.on('ready', () => {
       port = _port;
     }
 
+    console.log(__dirname);
     let script = path.join(path.resolve(__dirname, '..', '..'), 'ChaldeaStockObservatory-Core', 'src', 'main.py');
     core_proc = child_process.spawn('python', [script, '-port', port])
   });

@@ -12,8 +12,6 @@ const path = require('path');
 const ipc = electron.ipcRenderer;
 const app = electron.remote.app;
 const zerorpc = require("zerorpc");
-window.$ = window.jQuery = require("./jquery-1.11.1.min.js");
-
 var client = new zerorpc.Client();
 var app_path = app.getAppPath();
 
@@ -53,7 +51,7 @@ ipc.on('getPort_callback', (event, port) => {
       console.error(error);
     } else {
       console.log(res);
-      console.log(res['close']);
+      console.log(res['closeP']);
     }
   });
 
@@ -83,7 +81,8 @@ $(document).ready(function () {
       $("#add-popup").hide();
     }
 
-    if (!$(event.target).is("#manage-button, #manage-popup, .manage-popup-text")) {
+    
+    if (!$(event.target).is("#manage-button")) {
       $("#manage-popup").hide();
     }
   });
@@ -134,6 +133,41 @@ $(document).ready(function () {
     var offset_x = $('#manage-button')[0].offsetWidth - parseInt($($('#manage-popup')[0]).css("width"));
     var offset_y = $('#manage-button')[0].offsetHeight;
     $('#manage-popup').attr('style', `display: block; left: ${manage_btn_loc.x + offset_x}; top: ${manage_btn_loc.y + offset_y};`);
+  });
+
+  $('#add-new-list-btn').click(function (event) {
+    let list_name = $('#add-new-list-text')[0].value;
+    let list_name_valid = true;
+    stock_data['ListView'].every(function (list_data, index, array) {
+      if (list_name === list_data.name) {
+        list_name_valid = false;
+        return false;
+      }
+      else
+        return true;
+    });
+
+    if (list_name_valid){
+      $(".add-new-list-close").trigger("click");
+      stock_data['ListView'].push({
+        name: list_name,
+        data: []
+      });
+      let temp = '<option value="{name}">{name}</option>'.split("{name}").join(list_name);
+      $("#group-list-select").append(temp);
+      $("#group-list-select").prop('selectedIndex', stock_data['ListView'].length-1);  
+      $("#group-list-select").trigger("change");
+      saveStockDataASync();
+    }
+    else
+    {
+      $("#add-new-list-invalid").attr('style', 'display: block; color:red; padding-left:20px');
+    }
+  });
+
+  $('.add-new-list-close').click(function (event) {
+    $('#add-new-list-text')[0].value = "";
+    $("#add-new-list-invalid").attr('style', 'display: none;');
   });
 
   $("#group-list-select").on('change', function () {
@@ -199,10 +233,10 @@ function initStockSetting() {
         if ($("." + class_name).length == 0) {
           let temp = stock_data_template.replace('{name}', item.symbol);
           temp = temp.replace('{symbol}', item.symbol);
-          temp = temp.replace('{open}', item.open);
-          temp = temp.replace('{high}', item.high);
-          temp = temp.replace('{low}', item.low);
-          temp = temp.replace('{close}', item.close);
+          temp = temp.replace('{openP}', item.openP);
+          temp = temp.replace('{highP}', item.highP);
+          temp = temp.replace('{lowP}', item.lowP);
+          temp = temp.replace('{closeP}', item.closeP);
           temp = temp.replace('{changeP}', item.changeP);
           temp = temp.replace('{avg3mP}', item.avg3mP);
           temp = temp.replace('{volume}', item.volume);
@@ -396,10 +430,10 @@ const stock_data_template = `
     <div></div><div></div><div></div>
   </div>
   <span class="list-cell symbol">{symbol}</span>
-  <span class="list-cell open">{open}</span>
-  <span class="list-cell high">{high}</span>
-  <span class="list-cell low">{low}</span>
-  <span class="list-cell close">{close}</span>
+  <span class="list-cell openP">{openP}</span>
+  <span class="list-cell highP">{highP}</span>
+  <span class="list-cell lowP">{lowP}</span>
+  <span class="list-cell closeP">{closeP}</span>
   <span class="list-cell changeP">{changeP}</span>
   <span class="list-cell avg3mP">{avg3mP}</span>
   <span class="list-cell volume">{volume}</span>
