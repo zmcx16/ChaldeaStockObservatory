@@ -5,6 +5,8 @@ const STOCK_DATA_FILE_NAME = 'stock_data.json';
 // var
 var stock_data = {};
 var config = {};
+var input_dialog_now='';
+var check_dialog_now = '';
 
 const electron = require('electron');
 const fs = require('fs');
@@ -117,16 +119,40 @@ $(document).ready(function () {
         }); 
         now_stocks.push(stock);
       });
+      saveStockDataASync();
     }
     else {
       $('#reorder-button').addClass('reorder-running');
       $('#reorder-button').text('Reordering');
       $('.drag-tab').attr('style', 'display: inline-block;');
-      $('.check-tab').attr('style', 'display: none;');
+      $('.check-tab-wrap').attr('style', 'display: none;');
     }
 
     return;
   });
+
+  $('#search-icon').click(function (event) {
+
+    let symbols = $('#add-symbol-input')[0].value.split(",");
+    $('#add-symbol-input')[0].value = "";
+    symbols.forEach(function (symbol) {
+      sendCmdToCore('get_stock', symbol.trim(), (error, res) => {
+        if (error || res == null) {
+          console.error(error);
+          console.error(res);
+          $('#alert-dialog-content')[0].innerText = "The stock(s) can't be found.";
+          $('#alert-dialog-hidden-btn').click();
+        } else {
+          var list_index = $("#group-list-select")[0].selectedIndex;
+          var stock = res;
+          stock.link = link_template.replace('{symbol}', stock['symbol']);
+          stock_data['ListView'][list_index].data.push(stock);
+          saveStockDataASync();
+          initStockSetting();
+        }
+      });
+    })
+  })
 
   $('#manage-button').click(function (event) {
     var manage_btn_loc = getPosition($('#manage-button')[0]);
@@ -135,39 +161,76 @@ $(document).ready(function () {
     $('#manage-popup').attr('style', `display: block; left: ${manage_btn_loc.x + offset_x}; top: ${manage_btn_loc.y + offset_y};`);
   });
 
-  $('#add-new-list-btn').click(function (event) {
-    let list_name = $('#add-new-list-text')[0].value;
-    let list_name_valid = true;
-    stock_data['ListView'].every(function (list_data, index, array) {
-      if (list_name === list_data.name) {
-        list_name_valid = false;
-        return false;
+  $('#new-list-button').click(function (event) {
+    input_dialog_now = 'new-list';
+    $('#input-dialog-content')[0].innerText = "Create Stock List";
+    $('#input-dialog-text')[0].value = "";
+    $('#input-dialog-text')[0].placeholder = " List Name";
+    $('#input-dialog-text-invalid').attr('style', 'display: none;');
+    $('#input-dialog-hidden-btn').click();
+  });
+
+  $('#input-dialog-ok-btn').click(function (event) {
+    if (input_dialog_now ==='new-list'){
+      let list_name = $('#input-dialog-text')[0].value;
+      let list_name_valid = true;
+      stock_data['ListView'].every(function (list_data, index, array) {
+        if (list_name === list_data.name || list_name==='') {
+          list_name_valid = false;
+          return false;
+        }
+        else
+          return true;
+      });
+
+      if (list_name_valid){
+        stock_data['ListView'].push({
+          name: list_name,
+          data: []
+        });
+        let temp = '<option value="{name}">{name}</option>'.split("{name}").join(list_name);
+        $("#group-list-select").append(temp);
+        $("#group-list-select").prop('selectedIndex', stock_data['ListView'].length-1);  
+        $("#group-list-select").trigger("change");
+        saveStockDataASync();
+        $(".input-dialog-close").trigger("click");
       }
       else
-        return true;
-    });
-
-    if (list_name_valid){
-      $(".add-new-list-close").trigger("click");
-      stock_data['ListView'].push({
-        name: list_name,
-        data: []
-      });
-      let temp = '<option value="{name}">{name}</option>'.split("{name}").join(list_name);
-      $("#group-list-select").append(temp);
-      $("#group-list-select").prop('selectedIndex', stock_data['ListView'].length-1);  
-      $("#group-list-select").trigger("change");
-      saveStockDataASync();
-    }
-    else
-    {
-      $("#add-new-list-invalid").attr('style', 'display: block; color:red; padding-left:20px');
+      {
+        $("#input-dialog-text-invalid").attr('style', 'display: block; color:red; padding-left:20px');
+        $("#input-dialog-text-invalid")[0].innerText = "This List Name is invalid!";
+      }
     }
   });
 
-  $('.add-new-list-close').click(function (event) {
-    $('#add-new-list-text')[0].value = "";
-    $("#add-new-list-invalid").attr('style', 'display: none;');
+  $('#del-list-button').click(function (event) {
+
+    if ($("#group-list-select")[0].length <= 1){
+      $('#alert-dialog-content')[0].innerText = "You can't delete list if the list length <= 1.";
+      $('#alert-dialog-hidden-btn').click();
+    }
+    else{
+      var list_name = $("#group-list-select")[0].value;
+      var list_index = $("#group-list-select")[0].selectedIndex;
+
+      check_dialog_now = 'del-list';
+      $('#check-dialog-content')[0].innerText = "Are you sure you want to delete '" + list_name + "'?";
+      $('#check-dialog-hidden-btn').click();
+    }
+
+  });
+
+
+  $('#check-dialog-ok-btn').click(function (event) {
+    var list_name = $("#group-list-select")[0].value;
+    var list_index = $("#group-list-select")[0].selectedIndex;
+    if (check_dialog_now === 'del-list') {
+      stock_data['ListView'].splice(list_index, 1);
+      $("#group-list-select option[value='" + list_name + "']").remove();
+      $("#group-list-select").trigger("change");
+      saveStockDataASync();
+      $(".check-dialog-close").trigger("click");
+    }
   });
 
   $("#group-list-select").on('change', function () {
@@ -188,7 +251,7 @@ function ResetReorderButton(){
   $('#reorder-button').removeClass('reorder-running');
   $('#reorder-button').text('Reorder');
   $('.drag-tab').attr('style', 'display: none;');
-  $('.check-tab').attr('style', 'display: inline-block;');
+  $('.check-tab-wrap').attr('style', 'display: inline-block;');
 }
 
 function loadStockDataSync() {
@@ -211,7 +274,6 @@ function saveStockDataASync(){
 function initStockSetting() {
 
   //unbind event
-  $('#search-icon').unbind("click");
   $('input[name="stock-checkbox"]').unbind("change");
   $('#add-del-button').unbind("click");
   
@@ -232,6 +294,7 @@ function initStockSetting() {
         var class_name = 'stock_' + item.symbol;
         if ($("." + class_name).length == 0) {
           let temp = stock_data_template.replace('{name}', item.symbol);
+          temp = temp.replace('{checkbox}', item.symbol); temp = temp.replace('{checkbox}', item.symbol);
           temp = temp.replace('{symbol}', item.symbol);
           temp = temp.replace('{openP}', item.openP);
           temp = temp.replace('{highP}', item.highP);
@@ -251,28 +314,7 @@ function initStockSetting() {
   });
 
   $('.drag-tab').attr('style', 'display: none;');
-  $('.check-tab').attr('style', 'display: inline-block;');
-
-  $('#search-icon').click(function (event) {
-
-    let symbols = $('#add-symbol-input')[0].value.split(",");
-    $('#add-symbol-input')[0].value = "";
-    symbols.forEach(function (symbol) {
-      sendCmdToCore('get_stock', symbol.trim(), (error, res) => {
-        if (error || res == null) {
-          console.error('error: ' + error);
-          console.error('res: ' + res);
-        } else {
-          var list_index = $("#group-list-select")[0].selectedIndex;
-          var stock = res;
-          stock.link = link_template.replace('{symbol}', stock['symbol']);
-          stock_data['ListView'][list_index].data.push(stock);
-          saveStockDataASync();
-          initStockSetting();
-        }
-      });
-    })
-  })
+  $('.check-tab-wrap').attr('style', 'display: inline-block;');
 
   $('input[name="stock-checkbox"]').on('change', function () {
     var atLeastOneIsChecked = $('input[name="stock-checkbox"]:checked').length > 0;
@@ -423,11 +465,14 @@ const link_template = 'https://hk.finance.yahoo.com/quote/{symbol}';
 /* template data */
 const stock_data_template = `
 <li class="item stock_{name}">
-  <div class="check-tab">
-    <input type="checkbox" name="stock-checkbox">
-  </div>
   <div class="drag-tab">
     <div></div><div></div><div></div>
+  </div>
+  <div class="check-tab-wrap">
+    <div class="custom-control custom-checkbox check-tab">
+      <input type="checkbox" class="custom-control-input" id="checkbox-{checkbox}" name="stock-checkbox">
+      <label class="custom-control-label" for="checkbox-{checkbox}"></label>
+    </div>
   </div>
   <span class="list-cell symbol">{symbol}</span>
   <span class="list-cell openP">{openP}</span>

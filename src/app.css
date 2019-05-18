@@ -1,12 +1,35 @@
 body {
-  /*background: #E2D53C;*/
+  /*background: aliceblue;*/
+  /*background: mintcream;*/
+  background: snow;
   color: #292929;
   font-family: 'Comic Sans', 'Comic Sans MS';
   font-size: 14pt;
 }
 
 button:focus {
-    outline: 0 !important;
+  outline: 0 !important;
+}
+
+.click-btn {
+  display: inline-block;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  outline: none;
+  color: #fff;
+  background-color: #4CAF50;
+  border: none;
+  border-radius: 5px;
+  box-shadow: 0 2px #999;
+}
+
+.click-btn:hover {background-color: #3e8e41}
+
+.click-btn:active {
+  background-color: #3e8e41;
+  box-shadow: 0 2px #666;
+  transform: translateY(1px);
 }
 
 .text-btn{
@@ -44,7 +67,7 @@ button:focus {
   border-top: unset;
 }
 
-#add-new-list-text{
+#input-dialog-text{
   width: 100%;
 }
 
@@ -86,7 +109,7 @@ button:focus {
   margin: 10px 10px;
   height: 40px;
   display: grid;
-  grid-template-columns: 120px 60px 140px 200px auto 80px;
+  grid-template-columns: 120px 60px 140px 200px 20px auto 80px;
   /*justify-items: center;*/
   align-items: center;
 }
@@ -172,13 +195,9 @@ ul {
   margin: 0;
 }
 
-input[type="checkbox"]{
-  width: 22px;
-  height: 22px;
-}
-
 .item, .drag-tab, .non-drag-tab {
   vertical-align: middle;
+  padding: 3px;
 }
 
 .item, .header-item {
@@ -193,9 +212,7 @@ input[type="checkbox"]{
 
 .drag-tab, .non-drag-tab, .check-tab {
   display: inline-block;
-  width: 26px;
-  padding: 3px;
-  vertical-align: middle;
+  left: 10px;
 }
 
 .drag-tab{
