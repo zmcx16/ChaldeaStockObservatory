@@ -1,12 +1,17 @@
 // Def
 const USER_DATA = 'user_data';
 const STOCK_DATA_FILE_NAME = 'stock_data.json';
+const CONFIG_FILE_NAME = 'config.json'
+const MIN_UPDATE_TIME = 10;
 
 // var
 var stock_data = {};
 var config = {};
 var input_dialog_now='';
 var check_dialog_now = '';
+
+//interval
+var update_OHLCV_interval = null;
 
 const electron = require('electron');
 const fs = require('fs');
@@ -48,12 +53,17 @@ ipc.on('getPort_callback', (event, port) => {
     }
   });
 
+  //Test if can get data, if it is yes, set update interval.
   sendCmdToCore('get_realtime_stock', 'T', (error, res) => {
     if (error) {
       console.error(error);
     } else {
-      console.log(res);
-      console.log(res['closeP']);
+
+      let update_time = config['OHLCV_Interval'];
+      if (update_time < MIN_UPDATE_TIME){
+        update_time = MIN_UPDATE_TIME;
+      }
+      update_OHLCV_interval = setInterval(updateOHLCV, update_time * 1000);
     }
   });
 
@@ -74,6 +84,11 @@ $(document).ready(function () {
         data: []
       }
     ];
+  }
+
+  loadConfigDataSync();
+  if (Object.keys(config).length === 0) {
+    config['OHLCV_Interval'] = MIN_UPDATE_TIME;
   }
  
   ipc.send('getPort');
@@ -119,7 +134,7 @@ $(document).ready(function () {
         }); 
         now_stocks.push(stock);
       });
-      saveStockDataASync();
+      saveDataASync(STOCK_DATA_FILE_NAME, stock_data);
     }
     else {
       $('#reorder-button').addClass('reorder-running');
@@ -147,12 +162,16 @@ $(document).ready(function () {
           var stock = res;
           stock.link = link_template.replace('{symbol}', stock['symbol']);
           stock_data['ListView'][list_index].data.push(stock);
-          saveStockDataASync();
+          saveDataASync(STOCK_DATA_FILE_NAME, stock_data);
           initStockSetting();
         }
       });
     })
   })
+
+  $('#update-button').click(function (event) {
+    updateOHLCV();
+  });
 
   $('#manage-button').click(function (event) {
     var manage_btn_loc = getPosition($('#manage-button')[0]);
@@ -192,7 +211,7 @@ $(document).ready(function () {
         $("#group-list-select").append(temp);
         $("#group-list-select").prop('selectedIndex', stock_data['ListView'].length-1);  
         $("#group-list-select").trigger("change");
-        saveStockDataASync();
+        saveDataASync(STOCK_DATA_FILE_NAME, stock_data);
         $(".input-dialog-close").trigger("click");
       }
       else
@@ -228,7 +247,7 @@ $(document).ready(function () {
       stock_data['ListView'].splice(list_index, 1);
       $("#group-list-select option[value='" + list_name + "']").remove();
       $("#group-list-select").trigger("change");
-      saveStockDataASync();
+      saveDataASync(STOCK_DATA_FILE_NAME, stock_data);
       $(".check-dialog-close").trigger("click");
     }
   });
@@ -262,13 +281,76 @@ function loadStockDataSync() {
   }
 }
 
-function saveStockDataASync(){
-  fs.writeFile(path.join(user_data_path, STOCK_DATA_FILE_NAME), JSON.stringify(stock_data), 'utf8', (err) => {
+function loadConfigDataSync() {
+  let file_path = path.join(user_data_path, CONFIG_FILE_NAME);
+  if (fs.existsSync(file_path)) {
+    let data = fs.readFileSync(file_path, 'utf8');
+    config = JSON.parse(data);
+  }
+}
+
+function saveDataASync(file_name, target_data){
+  fs.writeFile(path.join(user_data_path, file_name), JSON.stringify(target_data), 'utf8', (err) => {
     if (err) 
-      console.error('save ' + STOCK_DATA_FILE_NAME + ' failed, err = ' + err);
+      console.error('save ' + file_name + ' failed, err = ' + err);
     else
-      console.log(STOCK_DATA_FILE_NAME + ' has been saved.');
+      console.log(file_name + ' has been saved.');
   });
+}
+
+function updateStocksColor(){
+
+  let item_list = $('.item');
+  item_list.each(function (row_index) {
+    updateStockColor(item_list[row_index]);
+  });
+}
+
+function updateStockColor(target) {
+
+  let change = $(target).children('.list-cell.changeP');
+  let sign = Math.sign(parseFloat($(change[0])[0].innerText));
+  if (sign == 1) {
+    $(change[0]).attr('style', 'color:green;');
+  } else if (sign == -1) {
+    $(change[0]).attr('style', 'color:red;');
+  } else {
+    $(change[0]).attr('style', 'color:black;');
+  }
+}
+
+function updateOHLCV(){
+
+  let list_index = $("#group-list-select")[0].selectedIndex;
+  let now_stocks = stock_data['ListView'][list_index].data;
+  now_stocks.forEach(function (item, index, array) {
+    sendCmdToCore('get_realtime_stock', item.symbol, (error, res) => {
+      if (error) {
+        console.error(error);
+      } else {
+        //console.log(res);
+        updateOHLCV_UI(res);
+      }
+    });
+  });
+}
+
+function updateOHLCV_UI(stock){
+
+  updateCol(stock['symbol'], 'openP', stock['openP']);
+  updateCol(stock['symbol'], 'highP', stock['highP']);
+  updateCol(stock['symbol'], 'lowP', stock['lowP']);
+  updateCol(stock['symbol'], 'closeP', stock['closeP']);
+  updateCol(stock['symbol'], 'volume', stock['volume']);
+  updateCol(stock['symbol'], 'changeP', stock['changeP']);
+  updateStockColor($('.item.stock_' + stock['symbol'])[0]);
+}
+
+function updateCol(symbol, label, value){
+  let target = $('.item.stock_' + symbol + ' .list-cell.' + label)[0];
+  if (target){
+    target.innerText = value;
+  }
 }
 
 function initStockSetting() {
@@ -312,6 +394,8 @@ function initStockSetting() {
       });
     }
   });
+
+  updateStocksColor();
 
   $('.drag-tab').attr('style', 'display: none;');
   $('.check-tab-wrap').attr('style', 'display: inline-block;');
