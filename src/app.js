@@ -9,6 +9,7 @@ var stock_data = {};
 var config = {};
 var input_dialog_now='';
 var check_dialog_now = '';
+var update_status = {};     //'key': bool
 
 //interval
 var update_OHLCV_interval = null;
@@ -58,6 +59,8 @@ ipc.on('getPort_callback', (event, port) => {
     if (error) {
       console.error(error);
     } else {
+
+      updateOHLCV(); //run now
 
       let update_time = config['OHLCV_Interval'];
       if (update_time < MIN_UPDATE_TIME){
@@ -170,6 +173,9 @@ $(document).ready(function () {
   })
 
   $('#update-button').click(function (event) {
+    update_status = {};
+    $('#update-progress')[0].style.width = '0%';
+    $('#update-progress')[0].innerHTML = '0%';
     updateOHLCV();
   });
 
@@ -344,6 +350,19 @@ function updateOHLCV_UI(stock){
   updateCol(stock['symbol'], 'volume', stock['volume']);
   updateCol(stock['symbol'], 'changeP', stock['changeP']);
   updateStockColor($('.item.stock_' + stock['symbol'])[0]);
+
+  update_status[stock['symbol']] = true;
+  let update_cnt = Object.keys(update_status).length;
+  let total_num = $('.item').length;
+  if (update_cnt < total_num){
+    //console.log(update_cnt);
+    $('#update-progress')[0].style.width = (update_cnt * 100 / total_num).toString() + '%';
+    $('#update-progress')[0].innerHTML = (Math.round(update_cnt*100 / total_num)).toString() + '%';
+  }else{
+    $('#update-progress')[0].style.width = '100%';
+    $('#update-progress')[0].innerHTML = '100%';
+  }
+
 }
 
 function updateCol(symbol, label, value){

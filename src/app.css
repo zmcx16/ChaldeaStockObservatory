@@ -11,25 +11,47 @@ button:focus {
   outline: 0 !important;
 }
 
-.click-btn {
+.click-btn-v1, .click-btn-v2 {
   display: inline-block;
   cursor: pointer;
   text-align: center;
   text-decoration: none;
   outline: none;
   color: #fff;
-  background-color: #4CAF50;
   border: none;
   border-radius: 5px;
+  
+}
+
+.click-btn-v1 {
   box-shadow: 0 2px #999;
 }
 
-.click-btn:hover {background-color: #3e8e41}
-
-.click-btn:active {
-  background-color: #3e8e41;
+.click-btn-v1:active {
   box-shadow: 0 2px #666;
   transform: translateY(1px);
+}
+
+.click-btn-v2 {
+  box-shadow: 2px 2px 1px #999, -1px -1px 1px #CCC
+}
+
+.click-btn-v2:active {
+  box-shadow: -2px -2px 1px #999;
+}
+
+#update-button{
+  background-color: #4CAF50;
+}
+
+#update-button:hover {
+  background-color: #3e8e41
+}
+
+.main-tool-btn{
+  width:64px;
+  height:64px;
+  background: aliceblue;
 }
 
 .text-btn{
@@ -83,26 +105,6 @@ button:focus {
 .main-tool{
   margin: 15px 15px;
   display: inline-block;
-}
-
-.main-tool button{
-  width:70px;
-  height:70px;
-}
-
-#screen-button{
-  background: url(./screen.png) no-repeat center;
-  background-size: 70%;
-}
-
-#notifications-button{
-  background: url(./notification.png) no-repeat center;
-  background-size: 70%;
-}
-
-#setting-button{
-  background: url(./setting.png) no-repeat center;
-  background-size: 70%;
 }
 
 #second-toolbar{

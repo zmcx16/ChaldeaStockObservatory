@@ -37,13 +37,31 @@ const tray_list = [
   }
 ];
 
+const menu_template = [
+  {
+    label: 'Menu',
+    submenu: [
+      { 
+        label: 'About ChaldeaStockObservatory',
+        click: () => {},
+      },
+      { 
+        label: 'Quit',
+        click: () => { quitAll(); }
+      }
+    ]
+  }
+]
 
 app.on('ready', () => {
   let icon = path.join(__dirname, "","icon@2x.png");
   appIcon = new Tray(icon);
-  let contextMenu = Menu.buildFromTemplate(tray_list.map(addCmdToMenu));
+  let contextMenu = Menu.buildFromTemplate(tray_list.map(addCmdToTrayMenu));
   appIcon.setToolTip('Chaldea Stock Observatory');
   appIcon.setContextMenu(contextMenu);
+
+  const menu = Menu.buildFromTemplate(menu_template)
+  Menu.setApplicationMenu(menu)
 
   // render process
   mainWindow = new BrowserWindow({
@@ -51,9 +69,9 @@ app.on('ready', () => {
     webPreferences: {
       nodeIntegration: true
     },
-    width: 920, height: 600/*,
-    minWidth: 640, minHeight: 480,
-    maxWidth: 1024, maxHeight: 768*/
+    width: 960, height: 600
+    //,minWidth: 640, minHeight: 480
+    //,maxWidth: 1024, maxHeight: 768
     });
 
     mainWindow.loadURL(`file://${__dirname}/index.html`);
@@ -81,6 +99,11 @@ app.on('ready', () => {
     core_proc = child_process.spawn('python', [script, '-port', port])
   });
 
+  mainWindow.on('close', (event) => {
+    event.preventDefault();
+    mainWindow.hide();
+  })
+
 });
 
 ipc.on('getPort', (event) => {
@@ -100,14 +123,14 @@ function triggerTrayCmd(param) {
   //console.log(param);
   switch (param.cmd) {
     case 'HIDDEN_SHOW':
-      if (mainWindow.isMinimized()) {
+      if (mainWindow.isMinimized() || !mainWindow.isVisible()) {
         mainWindow.show();
       } else {
         mainWindow.minimize();
       }
       break;
     case 'EXIT':
-      app.quit();
+      quitAll();
       break;
     default:
       mainWindow.webContents.send('triggerTrayCmd', param);
@@ -115,7 +138,12 @@ function triggerTrayCmd(param) {
   }
 }
 
-function addCmdToMenu(cmd) {
+function quitAll(){
+  app.quit();
+  app.exit(0);
+}
+
+function addCmdToTrayMenu(cmd) {
   return {
     label: cmd.title,
     type: 'normal',
