@@ -106,9 +106,9 @@ app.on('ready', () => {
     let script = path.join(path.resolve(__dirname, '..', '..'), 'ChaldeaStockObservatory-Core', 'src', 'core.py');
     if (!fs.existsSync(script)) {
       if (platform == 'win32') {
-        script = path.join(path.resolve(__dirname, '..', '..'), 'core-win', 'core.exe');
+        script = path.join(__dirname, 'core-win', 'core.exe');
       }else if(platform == 'darwin'){
-        script = path.join(path.resolve(__dirname, '..', '..'), 'core-mac', 'core');
+        script = path.join(__dirname, 'core-mac', 'core');
       }
       console.log(script);
       core_proc = child_process.execFile(script, ['-port', port]);
