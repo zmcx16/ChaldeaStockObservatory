@@ -15,6 +15,8 @@ var update_status = {};     //'key': bool
 var update_OHLCV_interval = null;
 
 const electron = require('electron');
+const child_process = require('child_process');
+const os = require('os');
 const fs = require('fs');
 const path = require('path');
 const ipc = electron.ipcRenderer;
@@ -341,6 +343,10 @@ function updateOHLCV(){
   });
 }
 
+function navToWebsite(link){
+  ipc.send('navToWebsite', link);
+}
+
 function updateOHLCV_UI(stock){
 
   updateCol(stock['symbol'], 'openP', stock['openP']);
@@ -377,7 +383,6 @@ function initStockSetting() {
   //unbind event
   $('input[name="stock-checkbox"]').unbind("change");
   $('#add-del-button').unbind("click");
-  
 
   // reset status
   ResetReorderButton();
@@ -587,6 +592,6 @@ const stock_data_template = `
   <span class="list-cell volume">{volume}</span>
   <span class="list-cell avg3mV">{avg3mV}</span>
   <span class="list-cell strikeP1Y">{strikeP1Y}</span>
-  <span class="list-cell link"><a href="{link}">Link</a></span>
+  <span class="list-cell link"><a href="#" onclick="navToWebsite('{link}')">Link</a></span>
 </li>
 `;

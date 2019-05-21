@@ -1,6 +1,8 @@
 'use strict';
 
 const path = require('path');
+const os = require('os');
+const fs = require('fs');
 const electron = require('electron');
 const app = electron.app;
 const Menu = electron.Menu;
@@ -14,6 +16,7 @@ const detect_port = require('detect-port');
 let appIcon = null;
 let mainWindow = null;
 
+let platform = os.platform();
 let port = '';
 let core_proc = null;
 
@@ -43,7 +46,11 @@ const menu_template = [
     submenu: [
       { 
         label: 'About ChaldeaStockObservatory',
-        click: () => {},
+        click: () => {}
+      },
+      {
+        label: 'Debug Console',
+        click: () => { mainWindow.webContents.openDevTools();}
       },
       { 
         label: 'Quit',
@@ -94,9 +101,20 @@ app.on('ready', () => {
       port = _port;
     }
 
-    console.log(__dirname);
-    let script = path.join(path.resolve(__dirname, '..', '..'), 'ChaldeaStockObservatory-Core', 'src', 'main.py');
-    core_proc = child_process.spawn('python', [script, '-port', port])
+    console.log('dir path:' + __dirname);
+    console.log('platform:' + platform);
+    let script = path.join(path.resolve(__dirname, '..', '..'), 'ChaldeaStockObservatory-Core', 'src', 'core.py');
+    if (!fs.existsSync(script) || true) {
+      if (platform == 'win32') {
+        script = path.join(path.resolve(__dirname, '..', '..'), 'core-win', 'core.exe');
+      }
+      console.log(script);
+      core_proc = child_process.execFile(script, ['-port', port]);
+
+    }else{
+      core_proc = child_process.spawn('python', [script, '-port', port]);
+    }
+
   });
 
   mainWindow.on('close', (event) => {
@@ -109,6 +127,12 @@ app.on('ready', () => {
 ipc.on('getPort', (event) => {
   console.log('get port: ' + port);
   event.sender.send('getPort_callback', port);
+});
+
+ipc.on('navToWebsite', (event, link) => {
+  if (platform == 'win32') {
+    child_process.execSync('start ' + link);
+  }
 });
 
 app.on('will-quit', () => {
