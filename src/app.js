@@ -41,7 +41,7 @@ if (platform == 'linux'){
 }
 
 if (!fs.existsSync(user_data_path)) {
-  fs.mkdirSync(user_data_path);
+  fs.mkdirSync(user_data_path, { recursive: true });
 }
 
 
