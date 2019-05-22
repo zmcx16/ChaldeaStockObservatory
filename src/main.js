@@ -134,6 +134,10 @@ ipc.on('getPort', (event) => {
 ipc.on('navToWebsite', (event, link) => {
   if (platform == 'win32') {
     child_process.execSync('start ' + link);
+  } else if (platform == 'darwin'){
+    child_process.execSync('open ' + link);
+  } else if (platform == 'linux'){
+    child_process.execSync('xdg-open ' + link);
   }
 });
 
