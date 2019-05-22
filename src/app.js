@@ -24,6 +24,7 @@ const app = electron.remote.app;
 const zerorpc = require("zerorpc");
 var client = new zerorpc.Client();
 var app_path = app.getAppPath();
+var platform = os.platform();
 
 var root_path = '';
 if (app_path.indexOf('default_app.asar') != -1)  //dev mode
@@ -31,7 +32,14 @@ if (app_path.indexOf('default_app.asar') != -1)  //dev mode
 else  //binary mode
   root_path =path.resolve(path.dirname(app_path), '..');
 
-var user_data_path = path.join(root_path,USER_DATA);
+var user_data_path = '';
+if (platform == 'linux'){
+  const homedir = os.homedir();
+  user_data_path = path.join(homedir, '.ChaldeaStockObservatory', USER_DATA);
+}else{
+  user_data_path = path.join(root_path, USER_DATA);
+}
+
 if (!fs.existsSync(user_data_path)) {
   fs.mkdirSync(user_data_path);
 }
