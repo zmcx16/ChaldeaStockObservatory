@@ -109,7 +109,9 @@ app.on('ready', () => {
         script = path.join(__dirname, 'core-win', 'core.exe');
       }else if(platform == 'darwin'){
         script = path.join(__dirname, 'core-mac', 'core');
-      }
+      } else if (platform == 'linux'){
+        script = path.join(__dirname, 'core-linux', 'core');
+      } 
       console.log(script);
       core_proc = child_process.execFile(script, ['-port', port]);
 
