@@ -61,7 +61,7 @@ const menu_template = [
 ]
 
 app.on('ready', () => {
-  let icon = path.join(__dirname, "","icon@2x.png");
+  let icon = path.join(__dirname, "","tray-icon.png");
   appIcon = new Tray(icon);
   let contextMenu = Menu.buildFromTemplate(tray_list.map(addCmdToTrayMenu));
   appIcon.setToolTip('Chaldea Stock Observatory');
@@ -73,6 +73,7 @@ app.on('ready', () => {
   // render process
   mainWindow = new BrowserWindow({
 
+    icon: path.join(__dirname, 'ChaldeaStockObservatory.png'),
     webPreferences: {
       nodeIntegration: true
     },
