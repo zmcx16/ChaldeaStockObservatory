@@ -17,12 +17,14 @@
     "appId": "com.electron.ChaldeaStockObservatory-com-app",
     "copyright": "© 2019 zmcx16",
     "compression": "maximum",
-	"asar": false,
+    "asar": false,
     "directories": {
       "output": "./dist"
     },
-	"files":{
-        "filter": ["!user_data/*"]
+    "files": {
+      "filter": [
+        "!user_data/*"
+      ]
     },
     "win": {
       "icon": "ChaldeaStockObservatory.ico",

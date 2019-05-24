@@ -600,6 +600,6 @@ const stock_data_template = `
   <span class="list-cell volume">{volume}</span>
   <span class="list-cell avg3mV">{avg3mV}</span>
   <span class="list-cell strikeP1Y">{strikeP1Y}</span>
-  <span class="list-cell link"><a href="#" onclick="navToWebsite('{link}')">Link</a></span>
+  <span class="list-cell link"><a href="javascript:void(0)" onclick="navToWebsite('{link}')">Link</a></span>
 </li>
 `;
