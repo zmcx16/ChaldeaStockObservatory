@@ -32,10 +32,10 @@
       "legalTrademarks": "zmcx16"
     },
     "mac": {
-      "icon": "ChaldeaStockObservatory.icns"
+      "icon": "ChaldeaStockObservatory1024x1024.png"
     },
     "linux": {
-      "icon": "ChaldeaStockObservatory.png"
+      "icon": "ChaldeaStockObservatory256x256.png"
     }
   },
   "devDependencies": {
