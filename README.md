@@ -22,11 +22,11 @@
   * Electron  
   
 # Dependencies
-  * bootstrap 		4.3.1
-  * detect-port 	1.3.0
-  * jquery 			3.4.1
-  * popper.js 		1.15.0
-  * zerorpc			0.9.8
+  * bootstrap>=4.3.1
+  * detect-port>=1.3.0
+  * jquery>=3.4.1
+  * popper.js>=1.15.0
+  * zerorpc>=0.9.8
 
 # Run
   * npm i
