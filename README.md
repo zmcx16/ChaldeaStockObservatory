@@ -11,7 +11,8 @@
   * Linux   - Ubuntu 16.04+
   
   P.S. 
-  The Pyinstaller builds is not fully static([issue])(https://stackoverflow.com/questions/17654363/pyinstaller-glibc-2-15-not-found), and Electron-builder also doesn't support too old OS platform, if your OS is not compatible with ChaldeaStockObservatory, please just run it on source code instead of executble package.
+  
+  The Pyinstaller builds is not fully static([issue](https://stackoverflow.com/questions/17654363/pyinstaller-glibc-2-15-not-found)), and Electron-builder also doesn't support too old OS platform, if your OS is not compatible with ChaldeaStockObservatory, please just run it on source code instead of executble package.
 
 # Core Module
   * [ChaldeaStockObservatory-Core](https://github.com/zmcx16/ChaldeaStockObservatory-Core)
@@ -36,7 +37,7 @@
   
 # Demo
 
-![image](https://github.com/zmcx16/ChaldeaStockObservatory/blob/master/ChaldeaStockObservatory/demo1.png)
+![image](https://github.com/zmcx16/ChaldeaStockObservatory/blob/master/demo/demo1.png)
 
 
 # Reference
