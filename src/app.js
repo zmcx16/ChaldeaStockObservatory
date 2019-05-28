@@ -139,7 +139,7 @@ $(document).ready(function () {
           let col_name = $(item[col_index]).attr('class').split(' ').slice(-1)[0];
           let value = '';
           if (col_name==='link')
-            value = $($(item[col_index])[0].children[0]).attr('href');
+            value =  link_template.replace('{symbol}', stock['symbol']);
           else
             value = $(item[col_index])[0].textContent;
 
