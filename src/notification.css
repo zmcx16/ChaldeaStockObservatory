@@ -1,0 +1,10 @@
+body {
+  background: snow;
+  color: #292929;
+  font-family: 'Comic Sans', 'Comic Sans MS';
+  font-size: 14pt;
+}
+
+button:focus {
+  outline: 0 !important;
+}

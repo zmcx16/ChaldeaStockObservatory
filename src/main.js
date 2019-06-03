@@ -15,6 +15,7 @@ const detect_port = require('detect-port');
 
 let appIcon = null;
 let mainWindow = null;
+let notifyWindow = null;
 
 let platform = os.platform();
 let port = '';
@@ -141,6 +142,25 @@ ipc.on('navToWebsite', (event, link) => {
     child_process.execSync('open ' + link);
   } else if (platform == 'linux'){
     child_process.execSync('xdg-open ' + link);
+  }
+});
+
+ipc.on('openNotificationWindow', (event, link) => {
+  if (!notifyWindow) {
+    console.log('open Notification Window');
+    notifyWindow = new BrowserWindow({
+      icon: path.join(__dirname, 'ChaldeaStockObservatory.png'),
+      webPreferences: {
+        nodeIntegration: true
+      },
+      width: 900, height: 600
+    });
+
+    notifyWindow.loadURL(`file://${__dirname}/notification.html`);
+
+    notifyWindow.on('closed', () => {
+      notifyWindow = null
+    })
   }
 });
 

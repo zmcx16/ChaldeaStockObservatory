@@ -110,7 +110,6 @@ $(document).ready(function () {
     if (!$(event.target).is("#add-del-button, #add-popup, #search-bar, #add-symbol-input, #search-icon, .add-popup-text")) {
       $("#add-popup").hide();
     }
-
     
     if (!$(event.target).is("#manage-button")) {
       $("#manage-popup").hide();
@@ -120,6 +119,10 @@ $(document).ready(function () {
   loadList();
   initStockSetting();
   dragList();
+
+  $('#notifications-button').click(function (event) {
+    ipc.send('openNotificationWindow');
+  });
 
   $('#reorder-button').click(function () {
     if ($('#reorder-button').hasClass('reorder-running')) {
