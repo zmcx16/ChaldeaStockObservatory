@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 'use strict';
 
 const path = require('path');
@@ -145,7 +146,7 @@ ipc.on('navToWebsite', (event, link) => {
   }
 });
 
-ipc.on('openNotificationWindow', (event, link) => {
+ipc.on('openNotificationWindow', () => {
   if (!notifyWindow) {
     console.log('open Notification Window');
     notifyWindow = new BrowserWindow({

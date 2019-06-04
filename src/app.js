@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 // Def
 const USER_DATA = 'user_data';
 const STOCK_DATA_FILE_NAME = 'stock_data.json';
@@ -12,10 +13,10 @@ var check_dialog_now = '';
 var update_status = {};     //'key': bool
 
 //interval
+// eslint-disable-next-line no-unused-vars
 var update_OHLCV_interval = null;
 
 const electron = require('electron');
-const child_process = require('child_process');
 const os = require('os');
 const fs = require('fs');
 const path = require('path');
@@ -46,11 +47,6 @@ if (!fs.existsSync(user_data_path)) {
 
 
 // ipc register
-ipc.on('triggerTrayCmd', (event, param) =>{
-  //document.getElementById('title').innerText = param.title;
-  //document.getElementById('contents').innerText = param.contents;
-});
-
 ipc.on('getPort_callback', (event, port) => {
 
   client.connect("tcp://127.0.0.1:" + port);
@@ -68,6 +64,7 @@ ipc.on('getPort_callback', (event, port) => {
   sendCmdToCore('get_realtime_stock', 'T', (error, res) => {
     if (error) {
       console.error(error);
+      console.error(res);
     } else {
 
       updateOHLCV(); //run now
@@ -120,7 +117,7 @@ $(document).ready(function () {
   initStockSetting();
   dragList();
 
-  $('#notifications-button').click(function (event) {
+  $('#notifications-button').click(function () {
     ipc.send('openNotificationWindow');
   });
 
@@ -162,7 +159,7 @@ $(document).ready(function () {
     return;
   });
 
-  $('#search-icon').click(function (event) {
+  $('#search-icon').click(function () {
 
     let symbols = $('#add-symbol-input')[0].value.split(",");
     $('#add-symbol-input')[0].value = "";
@@ -185,21 +182,21 @@ $(document).ready(function () {
     })
   })
 
-  $('#update-button').click(function (event) {
+  $('#update-button').click(function () {
     update_status = {};
     $('#update-progress')[0].style.width = '0%';
     $('#update-progress')[0].innerHTML = '0%';
     updateOHLCV();
   });
 
-  $('#manage-button').click(function (event) {
+  $('#manage-button').click(function () {
     var manage_btn_loc = getPosition($('#manage-button')[0]);
     var offset_x = $('#manage-button')[0].offsetWidth - parseInt($($('#manage-popup')[0]).css("width"));
     var offset_y = $('#manage-button')[0].offsetHeight;
     $('#manage-popup').attr('style', `display: block; left: ${manage_btn_loc.x + offset_x}; top: ${manage_btn_loc.y + offset_y};`);
   });
 
-  $('#new-list-button').click(function (event) {
+  $('#new-list-button').click(function () {
     input_dialog_now = 'new-list';
     $('#input-dialog-content')[0].innerText = "Create Stock List";
     $('#input-dialog-text')[0].value = "";
@@ -208,11 +205,11 @@ $(document).ready(function () {
     $('#input-dialog-hidden-btn').click();
   });
 
-  $('#input-dialog-ok-btn').click(function (event) {
+  $('#input-dialog-ok-btn').click(function () {
     if (input_dialog_now ==='new-list'){
       let list_name = $('#input-dialog-text')[0].value;
       let list_name_valid = true;
-      stock_data['ListView'].every(function (list_data, index, array) {
+      stock_data['ListView'].every(function (list_data) {
         if (list_name === list_data.name || list_name==='') {
           list_name_valid = false;
           return false;
@@ -241,7 +238,7 @@ $(document).ready(function () {
     }
   });
 
-  $('#del-list-button').click(function (event) {
+  $('#del-list-button').click(function () {
 
     if ($("#group-list-select")[0].length <= 1){
       $('#alert-dialog-content')[0].innerText = "You can't delete list if the list length <= 1.";
@@ -249,7 +246,6 @@ $(document).ready(function () {
     }
     else{
       var list_name = $("#group-list-select")[0].value;
-      var list_index = $("#group-list-select")[0].selectedIndex;
 
       check_dialog_now = 'del-list';
       $('#check-dialog-content')[0].innerText = "Are you sure you want to delete '" + list_name + "'?";
@@ -259,7 +255,7 @@ $(document).ready(function () {
   });
 
 
-  $('#check-dialog-ok-btn').click(function (event) {
+  $('#check-dialog-ok-btn').click(function () {
     var list_name = $("#group-list-select")[0].value;
     var list_index = $("#group-list-select")[0].selectedIndex;
     if (check_dialog_now === 'del-list') {
@@ -342,7 +338,7 @@ function updateOHLCV(){
 
   let list_index = $("#group-list-select")[0].selectedIndex;
   let now_stocks = stock_data['ListView'][list_index].data;
-  now_stocks.forEach(function (item, index, array) {
+  now_stocks.forEach(function (item) {
     sendCmdToCore('get_realtime_stock', item.symbol, (error, res) => {
       if (error) {
         console.error(error);
@@ -354,6 +350,7 @@ function updateOHLCV(){
   });
 }
 
+// eslint-disable-next-line no-unused-vars
 function navToWebsite(link){
   ipc.send('navToWebsite', link);
 }
@@ -405,9 +402,9 @@ function initStockSetting() {
   // reset stock data
   $(".item").remove();
   var list_name = $("#group-list-select")[0].value;
-  stock_data['ListView'].forEach(function (list_data, index, array) {
+  stock_data['ListView'].forEach(function (list_data) {
     if (list_name === list_data.name) {
-      list_data.data.forEach(function (item, index, array) {
+      list_data.data.forEach(function (item) {
         var class_name = 'stock_' + item.symbol;
         if ($("." + class_name).length == 0) {
           let temp = stock_data_template.replace('{name}', item.symbol);
@@ -447,7 +444,7 @@ function initStockSetting() {
     return;
   });
 
-  $('#add-del-button').click(function (event) {
+  $('#add-del-button').click(function () {
 
     if ($('#add-del-button')[0].innerText == 'Add') {
       var add_btn_loc = getPosition($('#add-del-button')[0]);
@@ -456,13 +453,13 @@ function initStockSetting() {
       $('#add-popup').attr('style', `display: block; left: ${add_btn_loc.x + offset_x}; top: ${add_btn_loc.y + offset_y};`);
     }
     else if ($('#add-del-button')[0].innerText == 'Del') {
-      var list_name = $("#group-list-select")[0].value;
+      
       var list_index = $("#group-list-select")[0].selectedIndex;
 
       $.each($('input[name="stock-checkbox"]:checked'), function () {
 
         var select_class_name = $(this).closest('li')[0].className;
-        stock_data['ListView'][list_index].data.forEach(function (item, index, array) {
+        stock_data['ListView'][list_index].data.forEach(function (item, index) {
           var class_name = 'stock_' + item.symbol;
           if (select_class_name.indexOf(class_name) != -1) {
             stock_data['ListView'][list_index].data.splice(index, 1);
@@ -481,7 +478,7 @@ function loadList() {
 
   $(".item").remove();
   $("#group-list-select").empty();
-  stock_data['ListView'].forEach(function (item, index, array) {
+  stock_data['ListView'].forEach(function (item) {
     let temp = '<option value="{name}">{name}</option>'.split("{name}").join(item.name);
     $("#group-list-select").append(temp);
   });
@@ -516,7 +513,7 @@ function dragList() {
 
       var item = $(".item");
 
-      for (i = item.length - 1; i >= 0; i--) {
+      for (var i = item.length - 1; i >= 0; i--) {
         if (!$(item[i]).hasClass("draggable")) {
           //if(true) {
           var dragTop = $(".draggable").offset().top;
