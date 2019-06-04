@@ -1,4 +1,5 @@
 # ChaldeaStockObservatory
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/d5a4ee5237c64d29898d04136c20584d)](https://www.codacy.com/app/zmcx16/ChaldeaStockObservatory?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=zmcx16/ChaldeaStockObservatory&amp;utm_campaign=Badge_Grade)
 
 # Features
 1.	Automatic download real-time stock data
