@@ -325,7 +325,7 @@ function updateStockColor(target) {
 
   let change = $(target).children('.list-cell.changeP');
   let sign = Math.sign(parseFloat($(change[0])[0].innerText));
-  if (sign == 1) {
+  if (sign === 1) {
     $(change[0]).attr('style', 'color:green;');
   } else if (sign == -1) {
     $(change[0]).attr('style', 'color:red;');
@@ -406,7 +406,7 @@ function initStockSetting() {
     if (list_name === list_data.name) {
       list_data.data.forEach(function (item) {
         var class_name = 'stock_' + item.symbol;
-        if ($("." + class_name).length == 0) {
+        if ($("." + class_name).length === 0) {
           let temp = stock_data_template.replace('{name}', item.symbol);
           temp = temp.replace('{checkbox}', item.symbol); temp = temp.replace('{checkbox}', item.symbol);
           temp = temp.replace('{symbol}', item.symbol);
