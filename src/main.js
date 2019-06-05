@@ -52,7 +52,12 @@ const menu_template = [
       },
       {
         label: 'Debug Console',
-        click: () => { mainWindow.webContents.openDevTools();}
+        click: () => { 
+          if (mainWindow != null && mainWindow.isFocused())
+            mainWindow.webContents.openDevTools();
+          else if (notifyWindow != null && notifyWindow.isFocused())
+            notifyWindow.webContents.openDevTools();
+        }
       },
       { 
         label: 'Quit',

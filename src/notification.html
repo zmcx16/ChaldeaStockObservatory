@@ -10,6 +10,52 @@
     <script src="notification.js"></script>
   </head>
   <body>
+    <div id="main-toolbar">
+      <div class="main-tool"><button class="text-btn" id="add-button">Add</button></div>
+      <div class="main-tool"><button class="text-btn" id="del-button">Del</button></div>
+      <div class="main-tool"><button class="text-btn" id="reorder-button">Reorder</button></div>
+    </div>
+    <div id="container">
+      <ul id="list">
+        <li class="header-item">
+          <div class="non-drag-tab">
+            <div></div>
+            <div></div>
+            <div></div>
+          </div>
+          <span class="list-cell symbol">Symbol</span>
+          <span class="list-cell openP">Open</span>
+          <span class="list-cell highP">High</span>
+          <span class="list-cell lowP">Low</span>
+          <span class="list-cell closeP">Close</span>
+          <span class="list-cell volume">Volume</span>
+          <span class="list-cell"></span>
+          <span class="list-cell last-update-time">2019-06-05  23:10:55</span>
+        </li>
+        <li class="item stock_T">
+          <div class="status-tab"></div>
+          <div class="drag-tab" style="display:none;">
+            <div></div>
+            <div></div>
+            <div></div>
+          </div>
+          <div class="check-tab-wrap" style="display:none;">
+            <div class="custom-control custom-checkbox check-tab">
+              <input type="checkbox" class="custom-control-input" id="checkbox-T" name="stock-checkbox">
+              <label class="custom-control-label" for="checkbox-T"></label>
+            </div>
+          </div>
+          <span class="list-cell symbol">T</span>
+          <span class="list-cell openP">32</span>
+          <span class="list-cell highP">33</span>
+          <span class="list-cell lowP">31</span>
+          <span class="list-cell closeP">32.5</span>
+          <span class="list-cell volume">23.71M</span>
+          <div class="list-cell edit-btn"><button id="edit-button" type="button" class="click-btn-v1">Edit</button></div>
+          <div class="list-cell enable-btn"><button id="enable-button" type="button">Enable</button></div>
+        </li>
+      </ul>
+    </div>
   </body>
 </html>
 

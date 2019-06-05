@@ -111,7 +111,7 @@ button:focus {
   margin: 10px 10px;
   height: 40px;
   display: grid;
-  grid-template-columns: 120px 60px 140px 200px 20px auto 80px;
+  grid-template-columns: 120px 60px 140px 200px 20px 90px auto 80px;
   /*justify-items: center;*/
   align-items: center;
 }
@@ -160,6 +160,10 @@ button:focus {
   position: absolute;
   right: 26px;
   padding: 0px;
+}
+
+#last-update-time{
+  font-family: Times; 
 }
 
 /* popup manage window */

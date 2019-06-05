@@ -377,6 +377,8 @@ function updateOHLCV_UI(stock){
     $('#update-progress')[0].innerHTML = '100%';
   }
 
+  let d = new Date();
+  $('#last-update-time')[0].innerHTML = formatDate(d, "MM/dd") + "&nbsp;&nbsp;&nbsp;" + formatDate(d, "hh:mm:ss"); 
 }
 
 function updateCol(symbol, label, value){
@@ -475,7 +477,7 @@ function initStockSetting() {
 }
 
 function loadList() {
-
+//new Date().toLocaleString('en-En',{weekday: "long", month: "long", day: "numeric"})
   $(".item").remove();
   $("#group-list-select").empty();
   stock_data['ListView'].forEach(function (item) {
