@@ -1,6 +1,13 @@
 /* eslint-disable no-console */
 'use strict';
 
+// def
+const USER_DATA = 'user_data';
+const STOCK_DATA_FILE_NAME = 'stock_data.json';
+const NOTIFICATION_DATA_FILE_NAME = 'notification_data.json';
+const CONFIG_FILE_NAME = 'config.json';
+
+// module
 const path = require('path');
 const os = require('os');
 const fs = require('fs');
@@ -10,18 +17,29 @@ const Menu = electron.Menu;
 const Tray = electron.Tray;
 const BrowserWindow = electron.BrowserWindow;
 const ipc = electron.ipcMain;
+const app_path = app.getAppPath();
+const platform = os.platform();
 
 const child_process = require('child_process');
 const detect_port = require('detect-port');
+
+//const notification_core = require('./notification-core.js');
+//notification_core.init();
 
 let appIcon = null;
 let mainWindow = null;
 let notifyWindow = null;
 
-let platform = os.platform();
 let port = '';
 let core_proc = null;
 
+var root_path = '';
+var user_data_path = '';
+
+// notification
+// Def
+//const USER_DATA = 'user_data';
+//const CONFIG_FILE_NAME = 'notification.json'
 
 const tray_list = [
   {
@@ -129,16 +147,42 @@ app.on('ready', () => {
 
   });
 
+  //get path
+  if (app_path.indexOf('default_app.asar') != -1)  //dev mode
+    root_path = path.resolve(path.dirname(app_path), '..', '..', '..', '..');
+  else  //binary mode
+    root_path = path.resolve(path.dirname(app_path), '..');
+
+  if (platform == 'linux') {
+    const homedir = os.homedir();
+    user_data_path = path.join(homedir, '.ChaldeaStockObservatory', USER_DATA);
+  } else {
+    user_data_path = path.join(root_path, USER_DATA);
+  }
+
+  if (!fs.existsSync(user_data_path)) {
+    fs.mkdirSync(user_data_path, { recursive: true });
+  }
+
+
+
   mainWindow.on('close', (event) => {
+    event.sender.send('doSaveStockData');
     event.preventDefault();
     mainWindow.hide();
   })
 
 });
 
+// ipc register
 ipc.on('getPort', (event) => {
   console.log('get port: ' + port);
   event.sender.send('getPort_callback', port);
+});
+
+ipc.on('getPortSync', (event) => {
+  console.log('get port: ' + port);
+  event.returnValue = port;
 });
 
 ipc.on('navToWebsite', (event, link) => {
@@ -168,6 +212,33 @@ ipc.on('openNotificationWindow', () => {
       notifyWindow = null
     })
   }
+});
+
+
+ipc.on('loadStockDataSync', (event) => {
+  let stock_data = '';
+  let file_path = path.join(user_data_path, STOCK_DATA_FILE_NAME);
+  if (fs.existsSync(file_path)) {
+    let data = fs.readFileSync(file_path, 'utf8');
+    stock_data = JSON.parse(data);
+  }
+
+  event.returnValue = stock_data;
+});
+
+ipc.on('saveStockData', (event, target_data) => {
+  saveDataSync(STOCK_DATA_FILE_NAME, target_data);
+});
+
+ipc.on('loadConfigDataSync', (event) => {
+  let config = '';
+  let file_path = path.join(user_data_path, CONFIG_FILE_NAME);
+  if (fs.existsSync(file_path)) {
+    let data = fs.readFileSync(file_path, 'utf8');
+    config = JSON.parse(data);
+  }
+
+  event.returnValue = config;
 });
 
 app.on('will-quit', () => {
@@ -208,4 +279,9 @@ function addCmdToTrayMenu(cmd) {
     type: 'normal',
     click: () => { triggerTrayCmd(cmd); }
   };
+}
+
+function saveDataSync(file_name, target_data){
+  console.log('save ' + file_name);
+  fs.writeFileSync(path.join(user_data_path, file_name), JSON.stringify(target_data), 'utf8');
 }

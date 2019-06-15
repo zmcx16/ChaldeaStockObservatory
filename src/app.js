@@ -1,9 +1,10 @@
 /* eslint-disable no-console */
-// Def
-const USER_DATA = 'user_data';
-const STOCK_DATA_FILE_NAME = 'stock_data.json';
-const CONFIG_FILE_NAME = 'config.json'
 const MIN_UPDATE_TIME = 10;
+
+const electron = require('electron');
+const ipc = electron.ipcRenderer;
+const zerorpc = require("zerorpc");
+var client = new zerorpc.Client();
 
 // var
 var stock_data = {};
@@ -15,35 +16,6 @@ var update_status = {};     //'key': bool
 //interval
 // eslint-disable-next-line no-unused-vars
 var update_OHLCV_interval = null;
-
-const electron = require('electron');
-const os = require('os');
-const fs = require('fs');
-const path = require('path');
-const ipc = electron.ipcRenderer;
-const app = electron.remote.app;
-const zerorpc = require("zerorpc");
-var client = new zerorpc.Client();
-var app_path = app.getAppPath();
-var platform = os.platform();
-
-var root_path = '';
-if (app_path.indexOf('default_app.asar') != -1)  //dev mode
-  root_path = path.resolve(path.dirname(app_path), '..', '..', '..', '..');
-else  //binary mode
-  root_path =path.resolve(path.dirname(app_path), '..');
-
-var user_data_path = '';
-if (platform == 'linux'){
-  const homedir = os.homedir();
-  user_data_path = path.join(homedir, '.ChaldeaStockObservatory', USER_DATA);
-}else{
-  user_data_path = path.join(root_path, USER_DATA);
-}
-
-if (!fs.existsSync(user_data_path)) {
-  fs.mkdirSync(user_data_path, { recursive: true });
-}
 
 
 // ipc register
@@ -70,19 +42,24 @@ ipc.on('getPort_callback', (event, port) => {
       updateOHLCV(); //run now
 
       let update_time = config['OHLCV_Interval'];
-      if (update_time < MIN_UPDATE_TIME){
+      if (update_time && update_time < MIN_UPDATE_TIME){
         update_time = MIN_UPDATE_TIME;
       }
-      update_OHLCV_interval = setInterval(updateOHLCV, update_time * 1000);
+      update_OHLCV_interval = setInterval(updateOHLCV, 10 * 1000);
     }
   });
 
 });
 
+ipc.on('doSaveStockData', () => {
+  ipc.send("saveStockData", stock_data);
+});
+
 
 $(document).ready(function () {
 
-  loadStockDataSync();
+  stock_data = ipc.sendSync('loadStockDataSync');
+
   if (Object.keys(stock_data).length === 0){
     stock_data['ListView'] = [
       {
@@ -96,9 +73,11 @@ $(document).ready(function () {
     ];
   }
 
-  loadConfigDataSync();
+  config = ipc.sendSync("loadConfigDataSync");
   if (Object.keys(config).length === 0) {
+    config = {};
     config['OHLCV_Interval'] = MIN_UPDATE_TIME;
+    console.log(config['OHLCV_Interval']);
   }
  
   ipc.send('getPort');
@@ -147,7 +126,7 @@ $(document).ready(function () {
         }); 
         now_stocks.push(stock);
       });
-      saveDataASync(STOCK_DATA_FILE_NAME, stock_data);
+      ipc.send("saveStockData", stock_data);
     }
     else {
       $('#reorder-button').addClass('reorder-running');
@@ -175,7 +154,7 @@ $(document).ready(function () {
           var stock = res;
           stock.link = link_template.replace('{symbol}', stock['symbol']);
           stock_data['ListView'][list_index].data.push(stock);
-          saveDataASync(STOCK_DATA_FILE_NAME, stock_data);
+          ipc.send("saveStockData", stock_data);
           initStockSetting();
         }
       });
@@ -227,7 +206,7 @@ $(document).ready(function () {
         $("#group-list-select").append(temp);
         $("#group-list-select").prop('selectedIndex', stock_data['ListView'].length-1);  
         $("#group-list-select").trigger("change");
-        saveDataASync(STOCK_DATA_FILE_NAME, stock_data);
+        ipc.send("saveStockData", stock_data);
         $(".input-dialog-close").trigger("click");
       }
       else
@@ -262,7 +241,7 @@ $(document).ready(function () {
       stock_data['ListView'].splice(list_index, 1);
       $("#group-list-select option[value='" + list_name + "']").remove();
       $("#group-list-select").trigger("change");
-      saveDataASync(STOCK_DATA_FILE_NAME, stock_data);
+      ipc.send("saveStockData", stock_data);
       $(".check-dialog-close").trigger("click");
     }
   });
@@ -286,31 +265,6 @@ function ResetReorderButton(){
   $('#reorder-button').text('Reorder');
   $('.drag-tab').attr('style', 'display: none;');
   $('.check-tab-wrap').attr('style', 'display: inline-block;');
-}
-
-function loadStockDataSync() {
-  let file_path = path.join(user_data_path, STOCK_DATA_FILE_NAME);
-  if (fs.existsSync(file_path)){
-    let data = fs.readFileSync(file_path, 'utf8');
-    stock_data = JSON.parse(data);
-  }
-}
-
-function loadConfigDataSync() {
-  let file_path = path.join(user_data_path, CONFIG_FILE_NAME);
-  if (fs.existsSync(file_path)) {
-    let data = fs.readFileSync(file_path, 'utf8');
-    config = JSON.parse(data);
-  }
-}
-
-function saveDataASync(file_name, target_data){
-  fs.writeFile(path.join(user_data_path, file_name), JSON.stringify(target_data), 'utf8', (err) => {
-    if (err) 
-      console.error('save ' + file_name + ' failed, err = ' + err);
-    else
-      console.log(file_name + ' has been saved.');
-  });
 }
 
 function updateStocksColor(){
@@ -484,97 +438,6 @@ function loadList() {
     let temp = '<option value="{name}">{name}</option>'.split("{name}").join(item.name);
     $("#group-list-select").append(temp);
   });
-}
-
-function dragList() {
-  var x, y, mx, my, lastItem;
-
-  //drag-tab click event
-  $(document).on("mousedown", ".drag-tab", function (mouse) {
-    mx = mouse.clientX;
-    my = mouse.clientY;
-    x = mx - $(this).parent().offset().left;
-    y = my - $(this).parent().offset().top;
-
-    var width = $(this).parent().width();
-    var height = $(this).parent().height();
-    lastItem = $(".item:last").offset().top + ($(".item:last").height() / 2);
-
-    $(this).parent().css({ "width": width, "height": height });
-    $(this).parent().after("<li id='place-holder'></li>");
-    $("#place-holder").css({ "height": $(this).height() });
-    $(this).parent().addClass("draggable");
-  });
-
-  //drag event
-  $(document).on("mousemove", function (mouse) {
-    var holdPlace = $("#place-holder");
-    if ($(".item").hasClass("draggable")) {
-      mx = mouse.clientX;
-      my = mouse.clientY;
-
-      var item = $(".item");
-
-      for (var i = item.length - 1; i >= 0; i--) {
-        if (!$(item[i]).hasClass("draggable")) {
-          //if(true) {
-          var dragTop = $(".draggable").offset().top;
-          var noDrag = $(item[i]).offset().top + ($(item[i]).height() / 2);
-
-          //console.log(lastItem);
-          if (dragTop > lastItem) {
-            //console.log($(item[i]).html());
-            $("#place-holder").remove();
-            $("#list").append(holdPlace);
-          }
-          if (dragTop < noDrag) {
-            //console.log($(item[i]).html());
-            $("#place-holder").remove();
-            $(item[i]).before(holdPlace);
-          }
-        }
-      }
-      $(".draggable").css({ "top": my - y });//, "left" : mx - x });
-    }
-  });
-  //mouse release event
-  $(document).on("mouseup", function () {
-    if ($(".item").hasClass("draggable")) {
-      deselect();
-    }
-    var toPlace = $(".draggable");
-    $(".draggable").remove();
-    //console.log(toPlace);
-    $(document).find("#place-holder").after(toPlace).remove();
-    $(".item").attr("style", "").removeClass("draggable");
-    //console.log($(".item"));
-  });
-  function deselect() {
-    if (window.getSelection) {
-      if (window.getSelection().empty) {  // Chrome
-        window.getSelection().empty();
-      } else
-        if (window.getSelection().removeAllRanges) {  // Firefox
-          window.getSelection().removeAllRanges();
-        }
-    } else
-      if (document.selection) {  // IE?
-        document.selection.empty();
-      }
-  }
-}
-
-/* common function */
-function getPosition(element) {
-  var x = 0;
-  var y = 0;
-  while (element) {
-    x += element.offsetLeft - element.scrollLeft + element.clientLeft;
-    y += element.offsetTop - element.scrollLeft + element.clientTop;
-    element = element.offsetParent;
-  }
-
-  return { x: x, y: y };
 }
 
 /* common data */
