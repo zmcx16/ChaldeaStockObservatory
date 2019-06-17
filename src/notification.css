@@ -23,7 +23,7 @@ button:focus {
   margin: 10px 10px;
   height: 40px;
   display: grid;
-  grid-template-columns: 120px 120px 120px;
+  grid-template-columns: 1fr 1fr 1fr 6fr auto;
   /*justify-items: center;*/
   align-items: center;
 }
@@ -51,7 +51,7 @@ ul {
 .item, .header-item {
   z-index: 1;
   display: grid;
-  grid-template-columns: 30px 1fr 1fr 1fr 1fr 1fr 1fr 1fr 2fr auto;
+  grid-template-columns: 30px 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr auto;
   align-items: center;
   margin: 0 0 6px;
   border: 6px;
@@ -83,6 +83,13 @@ ul {
   font-size: smaller;
   text-align: right;
   padding-right: 10px;
+}
+
+#last-update-time{
+  font-family: Times; 
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: #dfe1e5 1px solid;
 }
 
 .draggable {

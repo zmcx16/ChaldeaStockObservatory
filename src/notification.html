@@ -6,6 +6,7 @@
       window.$ = window.jQuery = require('./node_modules/jquery/dist/jquery.min.js');
       require('./node_modules/bootstrap/dist/js/bootstrap.min.js');
     </script>
+    <link href="button-toggle.css" rel="stylesheet">
     <link href="notification.css" rel="stylesheet">
     <script src="notification.js"></script>
   </head>
@@ -14,6 +15,8 @@
       <div class="main-tool"><button class="text-btn" id="add-button">Add</button></div>
       <div class="main-tool"><button class="text-btn" id="del-button">Del</button></div>
       <div class="main-tool"><button class="text-btn" id="reorder-button">Reorder</button></div>
+      <div class="main-tool"></div>
+      <div class="main-tool"><span id="last-update-time">06/18&nbsp;&nbsp;&nbsp;01:40:18</span></div>
     </div>
     <div id="container">
       <ul id="list">
@@ -30,7 +33,7 @@
           <span class="list-cell closeP">Close</span>
           <span class="list-cell volume">Volume</span>
           <span class="list-cell"></span>
-          <span class="list-cell last-update-time">2019-06-05  23:10:55</span>
+          <span class="list-cell"></span>
         </li>
         <li class="item stock_T">
           <div class="status-tab"></div>
@@ -52,7 +55,9 @@
           <span class="list-cell closeP">32.5</span>
           <span class="list-cell volume">23.71M</span>
           <div class="list-cell edit-btn"><button id="edit-button" type="button" class="click-btn-v1">Edit</button></div>
-          <div class="list-cell enable-btn"><button id="enable-button" type="button">Enable</button></div>
+          <div class="list-cell enable-btn">
+            <button id="enable-button" type="button" class="btn btn-sm btn-toggle" data-toggle="button" aria-pressed="false" autocomplete="off"><div class="handle"></div></button>
+          </div>
         </li>
       </ul>
     </div>
