@@ -2,6 +2,7 @@
   <head>
     <title>Notification</title>
     <link rel="stylesheet" href="./node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link href="common.css" rel="stylesheet">
     <script>
       window.$ = window.jQuery = require('./node_modules/jquery/dist/jquery.min.js');
       require('./node_modules/bootstrap/dist/js/bootstrap.min.js');
@@ -54,9 +55,9 @@
           <span class="list-cell lowP">31</span>
           <span class="list-cell closeP">32.5</span>
           <span class="list-cell volume">23.71M</span>
-          <div class="list-cell edit-btn"><button id="edit-button" type="button" class="click-btn-v1">Edit</button></div>
-          <div class="list-cell enable-btn">
-            <button id="enable-button" type="button" class="btn btn-sm btn-toggle" data-toggle="button" aria-pressed="false" autocomplete="off"><div class="handle"></div></button>
+          <div class="list-cell edit"><button id="edit-T" type="button" class="click-btn-v1 edit-btn">Edit</button></div>
+          <div class="list-cell enable">
+            <button id="enable-T" type="button" class="btn btn-sm btn-toggle" data-toggle="button" aria-pressed="false" autocomplete="off"><div class="handle"></div></button>
           </div>
         </li>
       </ul>

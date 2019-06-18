@@ -5,18 +5,8 @@ body {
   font-size: 14pt;
 }
 
-button:focus {
-  outline: 0 !important;
-}
-
-
-.text-btn{
-  background:none;
-  border:none;
-  cursor: pointer;  
-  font-size: 18;
-  font-family: inherit;
-  color: #0081f2;
+.edit-btn{
+  background-color: #4CAF50;
 }
 
 #main-toolbar{

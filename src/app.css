@@ -7,39 +7,6 @@ body {
   font-size: 14pt;
 }
 
-button:focus {
-  outline: 0 !important;
-}
-
-.click-btn-v1, .click-btn-v2 {
-  display: inline-block;
-  cursor: pointer;
-  text-align: center;
-  text-decoration: none;
-  outline: none;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  
-}
-
-.click-btn-v1 {
-  box-shadow: 0 2px #999;
-}
-
-.click-btn-v1:active {
-  box-shadow: 0 2px #666;
-  transform: translateY(1px);
-}
-
-.click-btn-v2 {
-  box-shadow: 2px 2px 1px #999, -1px -1px 1px #CCC
-}
-
-.click-btn-v2:active {
-  box-shadow: -2px -2px 1px #999;
-}
-
 #update-button{
   background-color: #4CAF50;
 }
@@ -52,29 +19,6 @@ button:focus {
   width:64px;
   height:64px;
   background: aliceblue;
-}
-
-.text-btn{
-  background:none;
-  border:none;
-  cursor: pointer;  
-  font-size: 18;
-  font-family: inherit;
-  color: #0081f2;
-}
-
-.anime-btn{
-  border: #0081f2 1px solid;
-  color: #0081f2;
-}
-
-.anime-btn:hover{
-  background: #0081f2;
-  color: #ffffff;
-}
-
-.ok-cancel-btn{
-  width: 80px;
 }
 
 .modal-footer>:not(:last-child) {
