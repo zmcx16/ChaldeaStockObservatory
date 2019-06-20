@@ -6,7 +6,11 @@ body {
 }
 
 .edit-btn{
-  background-color: #4CAF50;
+  background-color: #87cefa
+}
+
+.edit-btn:hover {
+  background-color: #79c0ec
 }
 
 #main-toolbar{
