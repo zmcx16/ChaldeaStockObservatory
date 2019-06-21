@@ -61,6 +61,7 @@ $(document).ready(function () {
   stock_data = ipc.sendSync('loadStockDataSync');
 
   if (Object.keys(stock_data).length === 0){
+    stock_data = {};
     stock_data['ListView'] = [
       {
         name: 'List1',
