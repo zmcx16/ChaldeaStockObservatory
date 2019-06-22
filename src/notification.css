@@ -45,7 +45,7 @@ ul {
 .item, .header-item {
   z-index: 1;
   display: grid;
-  grid-template-columns: 30px 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr auto;
+  grid-template-columns: 50px 0.6fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr auto;
   align-items: center;
   margin: 0 0 6px;
   border: 6px;

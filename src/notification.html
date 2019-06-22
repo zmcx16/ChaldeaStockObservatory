@@ -7,6 +7,7 @@
       window.$ = window.jQuery = require('./node_modules/jquery/dist/jquery.min.js');
       require('./node_modules/bootstrap/dist/js/bootstrap.min.js');
     </script>
+    <link href="led-light.css" rel="stylesheet">
     <link href="button-toggle.css" rel="stylesheet">
     <link href="notification.css" rel="stylesheet">
     <script src="notification.js"></script>
@@ -37,7 +38,11 @@
           <span class="list-cell"></span>
         </li>
         <li class="item stock_T">
-          <div class="status-tab"></div>
+          <div class="status-tab">
+            <div class="led-green"></div>
+            <div class="led-yellow" style="display:none;"></div>
+            <div class="led-grey" style="display:none;"></div>
+          </div>
           <div class="drag-tab" style="display:none;">
             <div></div>
             <div></div>
