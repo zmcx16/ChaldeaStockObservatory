@@ -26,6 +26,12 @@ body {
   height: 30px;
 }
 
+#last-update-time-led{
+  display: inline-block;
+  vertical-align: text-top;
+  margin-right: 15px;
+}
+
 /* container */
 #container{
   margin: 10px 10px;

@@ -106,6 +106,12 @@ body {
   padding: 0px;
 }
 
+#last-update-time-led{
+  display: inline-block;
+  vertical-align: text-top;
+  margin-right: 15px;
+}
+
 #last-update-time{
   font-family: Times; 
   padding: 5px 10px;
