@@ -18,7 +18,7 @@
       <div class="main-tool"><button class="text-btn" id="del-button">Del</button></div>
       <div class="main-tool"><button class="text-btn" id="reorder-button">Reorder</button></div>
       <div class="main-tool"></div>
-      <div class="main-tool"><span id="last-update-time">06/18&nbsp;&nbsp;&nbsp;01:40:18</span></div>
+      <div class="main-tool"><span id="last-update-time"><div class="led-green" id="last-update-time-led"></div>06/18&nbsp;&nbsp;&nbsp;01:40:18</span></div>
     </div>
     <div id="container">
       <ul id="list">
@@ -66,6 +66,29 @@
           </div>
         </li>
       </ul>
+    </div>
+    <div id="edit-dialog-hidden-btn" style="display:none;" data-toggle="modal" data-target="#edit-dialog"></div>
+    <div id="edit-dialog" class="modal inmodal fade" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static"
+      data-keyboard="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <div class="modal-title"></div>
+            <div id="edit-dialog-content"></div>
+            <div id="edit-dialog-text-invalid" style="display:none;"></div>
+            <button type="button" class="close edit-dialog-close" data-dismiss="modal">
+              <span>&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <input type="text" id="edit-dialog-text" name="edit-dialog-text-name">
+          </div>
+          <div class="modal-footer">
+            <button class="btn anime-btn ok-cancel-btn" id="edit-dialog-ok-btn">OK</button>
+            <button class="btn anime-btn ok-cancel-btn edit-dialog-close" data-dismiss="modal">Cancel</button>
+          </div>
+        </div>
+      </div>
     </div>
   </body>
 </html>

@@ -1,7 +1,29 @@
 // def
 
 // var
-var notification_data = {};
+var notification_data = {
+    "data": [
+        {
+            "symbol": "INTC",
+            "openP": "45.83",
+            "highP": "46.42",
+            "lowP": "45.55",
+            "closeP": "46.19",
+            "volume": "15.38M",
+            "enable": true,
+            "edit": [
+                {
+                    "name": "C1",
+                    "type": "st",
+                    "value": {
+                        "st_p": 10,
+                        "st_v": 4
+                    }
+                }
+            ]
+        }
+    ]
+}
 
 $(document).ready(function () {
 

@@ -333,7 +333,7 @@ function updateOHLCV_UI(stock){
   }
 
   let d = new Date();
-  $('#last-update-time')[0].innerHTML = formatDate(d, "MM/dd") + "&nbsp;&nbsp;&nbsp;" + formatDate(d, "hh:mm:ss"); 
+  $('#last-update-time')[0].innerHTML = '<div class="led-green" id="last-update-time-led"></div>' + formatDate(d, "MM/dd") + "&nbsp;&nbsp;&nbsp;" + formatDate(d, "hh:mm:ss"); 
 }
 
 function updateCol(symbol, label, value){
