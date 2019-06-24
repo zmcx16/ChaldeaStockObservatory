@@ -100,6 +100,10 @@ $(document).ready(function () {
     ipc.send('openNotificationWindow');
   });
 
+  $('#setting-button').click(function () {
+    ipc.send('openSettingWindow');
+  });
+
   $('#reorder-button').click(function () {
     if ($('#reorder-button').hasClass('reorder-running')) {
 

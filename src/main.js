@@ -29,6 +29,7 @@ const detect_port = require('detect-port');
 let appIcon = null;
 let mainWindow = null;
 let notifyWindow = null;
+let settingWindow = null;
 
 let port = '';
 let core_proc = null;
@@ -75,6 +76,8 @@ const menu_template = [
             mainWindow.webContents.openDevTools();
           else if (notifyWindow != null && notifyWindow.isFocused())
             notifyWindow.webContents.openDevTools();
+          else if (settingWindow != null && settingWindow.isFocused())
+            settingWindow.webContents.openDevTools();
         }
       },
       { 
@@ -214,6 +217,24 @@ ipc.on('openNotificationWindow', () => {
   }
 });
 
+ipc.on('openSettingWindow', () => {
+  if (!settingWindow) {
+    console.log('open Setting Window');
+    settingWindow = new BrowserWindow({
+      icon: path.join(__dirname, 'ChaldeaStockObservatory.png'),
+      webPreferences: {
+        nodeIntegration: true
+      },
+      width: 640, height: 800
+    });
+
+    settingWindow.loadURL(`file://${__dirname}/setting.html`);
+
+    settingWindow.on('closed', () => {
+      settingWindow = null
+    })
+  }
+});
 
 ipc.on('loadStockDataSync', (event) => {
   let stock_data = '';

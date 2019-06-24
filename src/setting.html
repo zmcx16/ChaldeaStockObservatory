@@ -1,0 +1,26 @@
+<html>
+  <head>
+    <title>Setting</title>
+    <link rel="stylesheet" href="./node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link href="common.css" rel="stylesheet">
+    <script>
+      window.$ = window.jQuery = require('./node_modules/jquery/dist/jquery.min.js');
+      require('./node_modules/bootstrap/dist/js/bootstrap.min.js');
+    </script>
+    <link href="setting.css" rel="stylesheet">
+    <script src="setting.js"></script>
+  </head>
+  <body>
+    <fieldset class="sync-block group-setting">
+      <legend class="sync-block">Sync Setting</legend>
+      <table>
+        <tr>
+          <td class="td-header">Period: </td>
+          <td><input type="text" class="td-text-val" id="period_start"/></td>
+          <td class="td-text"> ~ </td>
+          <td><input type="text" class="td-text-val" id="period_end" /></td>
+        </tr>
+      </table>
+    </fieldset>
+  </body>
+</html>
