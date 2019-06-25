@@ -15,10 +15,58 @@
       <legend class="sync-block">Sync Setting</legend>
       <table>
         <tr>
-          <td class="td-header">Period: </td>
-          <td><input type="text" class="td-text-val" id="period_start"/></td>
-          <td class="td-text"> ~ </td>
-          <td><input type="text" class="td-text-val" id="period_end" /></td>
+          <td class="td-header">Day: </td>
+          <td class="td-label-text" colspan="2"><div class="label-input">Start</div><input type="text" class="td-text-val" id="day_start"/></td>
+          <td class="td-label-text" colspan="2"><div class="label-input">End</div><input type="text" class="td-text-val" id="day_end"/></td>
+        </tr>
+        <tr>
+          <td class="td-header">Week: </td>
+          <td>
+            <div class="custom-control custom-checkbox">
+              <input type="checkbox" class="custom-control-input" id="week_sun" name="week_sun">
+              <label class="custom-control-label" for="week_sun">Sun</label>
+            </div>
+          </td>
+          <td>
+            <div class="custom-control custom-checkbox">
+              <input type="checkbox" class="custom-control-input" id="week_mon" name="week_mon">
+              <label class="custom-control-label" for="week_mon">Mon</label>
+            </div>
+          </td>
+          <td>
+            <div class="custom-control custom-checkbox">
+              <input type="checkbox" class="custom-control-input" id="week_tue" name="week_tue">
+              <label class="custom-control-label" for="week_tue">Tue</label>
+            </div>
+          </td>
+          <td>
+            <div class="custom-control custom-checkbox">
+              <input type="checkbox" class="custom-control-input" id="week_wed" name="week_wed">
+              <label class="custom-control-label" for="week_wed">Wed</label>
+            </div>
+          </td>
+          <td>
+            <div class="custom-control custom-checkbox">
+              <input type="checkbox" class="custom-control-input" id="week_thu" name="week_thu">
+              <label class="custom-control-label" for="week_thu">Thu</label>
+            </div>
+          </td>
+          <td>
+            <div class="custom-control custom-checkbox">
+              <input type="checkbox" class="custom-control-input" id="week_fri" name="week_fri">
+              <label class="custom-control-label" for="week_fri">Fri</label>
+            </div>
+          </td>
+          <td>
+            <div class="custom-control custom-checkbox">
+              <input type="checkbox" class="custom-control-input" id="week_sat" name="week_sat">
+              <label class="custom-control-label" for="week_sat">Sat</label>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="td-header">Interval: </td>
+          <td class="td-text-label" colspan="2"><input type="text" class="td-text-val" id="interval"/><div class="input-label">(sec)</div></td>
         </tr>
       </table>
     </fieldset>

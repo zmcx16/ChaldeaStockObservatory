@@ -225,7 +225,7 @@ ipc.on('openSettingWindow', () => {
       webPreferences: {
         nodeIntegration: true
       },
-      width: 640, height: 800
+      width: 680, height: 300
     });
 
     settingWindow.loadURL(`file://${__dirname}/setting.html`);

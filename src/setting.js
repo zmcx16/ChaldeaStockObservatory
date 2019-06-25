@@ -4,8 +4,8 @@
 var setting_data = {
     "data": {
         "sync": {
-            "period_start": "2100",
-            "period_end": "0400",
+            "day_start": "2125",
+            "day_end": "0505",
             "week_sun": false,
             "week_mon": true,
             "week_tue": true,

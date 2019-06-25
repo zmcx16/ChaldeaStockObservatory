@@ -19,17 +19,30 @@ legend.sync-block {
   width:inherit;
   padding:0 10px;
   border-bottom:none;
+  font-size: large;
+}
+
+td{
+  padding: 10px;
 }
 
 .td-header{
   padding-right:10px;
 }
 
-.td-text{
-  padding:0px 10px;
-}
+.label-input{
+  padding-right:10px;
+} 
+
+.input-label{
+  padding-left:10px;
+} 
 
 .td-text-val{
   width: 60px;
   text-align: center;
+}
+
+.label-input, .input-label{
+  display: inline-block;
 }
