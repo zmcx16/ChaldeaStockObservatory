@@ -1,0 +1,56 @@
+body {
+  background: snow;
+  color: #292929;
+  font-family: 'Comic Sans', 'Comic Sans MS';
+  font-size: 14pt;
+}
+
+.group-setting{
+  margin: 10px;
+}
+
+fieldset.sync-block {
+  border: 1px groove #ddd;
+  padding: 0 20px 20px 20px;
+  box-shadow:  0px 0px 0px 0px #000;
+}
+
+legend.sync-block {
+  width:inherit;
+  padding:0 10px;
+  border-bottom:none;
+  font-size: large;
+}
+
+td{
+  padding: 10px;
+}
+
+.td-header{
+  padding-right:10px;
+}
+
+.label-input{
+  padding-right:10px;
+} 
+
+.input-label{
+  padding-left:10px;
+} 
+
+.td-text-val{
+  width: 60px;
+  text-align: center;
+}
+
+.label-input, .input-label{
+  display: inline-block;
+}
+
+.footer{
+  text-align: right;
+}
+
+.ok-cancel-btn{
+  margin: 20px 15px;
+}

@@ -29,6 +29,7 @@ const detect_port = require('detect-port');
 let appIcon = null;
 let mainWindow = null;
 let notifyWindow = null;
+let settingWindow = null;
 
 let port = '';
 let core_proc = null;
@@ -36,10 +37,7 @@ let core_proc = null;
 var root_path = '';
 var user_data_path = '';
 
-// notification
-// Def
-//const USER_DATA = 'user_data';
-//const CONFIG_FILE_NAME = 'notification.json'
+var setting_data = {};
 
 const tray_list = [
   {
@@ -75,6 +73,8 @@ const menu_template = [
             mainWindow.webContents.openDevTools();
           else if (notifyWindow != null && notifyWindow.isFocused())
             notifyWindow.webContents.openDevTools();
+          else if (settingWindow != null && settingWindow.isFocused())
+            settingWindow.webContents.openDevTools();
         }
       },
       { 
@@ -85,6 +85,7 @@ const menu_template = [
   }
 ]
 
+// app register
 app.on('ready', () => {
   let icon = path.join(__dirname, "","tray-icon.png");
   appIcon = new Tray(icon);
@@ -94,6 +95,43 @@ app.on('ready', () => {
 
   const menu = Menu.buildFromTemplate(menu_template)
   Menu.setApplicationMenu(menu)
+
+  // OnStart
+  if (app_path.indexOf('default_app.asar') != -1)  //dev mode
+    root_path = path.resolve(path.dirname(app_path), '..', '..', '..', '..');
+  else  //binary mode
+    root_path = path.resolve(path.dirname(app_path), '..');
+
+  if (platform == 'linux') {
+    const homedir = os.homedir();
+    user_data_path = path.join(homedir, '.ChaldeaStockObservatory', USER_DATA);
+  } else {
+    user_data_path = path.join(root_path, USER_DATA);
+  }
+
+  if (!fs.existsSync(user_data_path)) {
+    fs.mkdirSync(user_data_path, { recursive: true });
+  }
+
+  setting_data = loadDataSync(CONFIG_FILE_NAME);
+  if (Object.keys(setting_data).length === 0) {
+    setting_data = {
+      "data": {
+        "sync": {
+          "day_start": "2125",
+          "day_end": "0505",
+          "week_sun": false,
+          "week_mon": true,
+          "week_tue": true,
+          "week_wed": true,
+          "week_thu": true,
+          "week_fri": true,
+          "week_sat": false,
+          "interval": 10
+        }
+      }
+    }
+  }
 
   // render process
   mainWindow = new BrowserWindow({
@@ -147,25 +185,6 @@ app.on('ready', () => {
 
   });
 
-  //get path
-  if (app_path.indexOf('default_app.asar') != -1)  //dev mode
-    root_path = path.resolve(path.dirname(app_path), '..', '..', '..', '..');
-  else  //binary mode
-    root_path = path.resolve(path.dirname(app_path), '..');
-
-  if (platform == 'linux') {
-    const homedir = os.homedir();
-    user_data_path = path.join(homedir, '.ChaldeaStockObservatory', USER_DATA);
-  } else {
-    user_data_path = path.join(root_path, USER_DATA);
-  }
-
-  if (!fs.existsSync(user_data_path)) {
-    fs.mkdirSync(user_data_path, { recursive: true });
-  }
-
-
-
   mainWindow.on('close', (event) => {
     event.sender.send('doSaveStockData');
     event.preventDefault();
@@ -173,6 +192,13 @@ app.on('ready', () => {
   })
 
 });
+
+app.on('will-quit', () => {
+  console.log('kill core process');
+  core_proc.kill();
+  core_proc = null;
+});
+
 
 // ipc register
 ipc.on('getPort', (event) => {
@@ -214,39 +240,41 @@ ipc.on('openNotificationWindow', () => {
   }
 });
 
+ipc.on('openSettingWindow', () => {
+  if (!settingWindow) {
+    console.log('open Setting Window');
+    settingWindow = new BrowserWindow({
+      icon: path.join(__dirname, 'ChaldeaStockObservatory.png'),
+      webPreferences: {
+        nodeIntegration: true
+      },
+      width: 680, height: 340
+    });
 
-ipc.on('loadStockDataSync', (event) => {
-  let stock_data = '';
-  let file_path = path.join(user_data_path, STOCK_DATA_FILE_NAME);
-  if (fs.existsSync(file_path)) {
-    let data = fs.readFileSync(file_path, 'utf8');
-    stock_data = JSON.parse(data);
+    settingWindow.loadURL(`file://${__dirname}/setting.html`);
+
+    settingWindow.on('closed', () => {
+      settingWindow = null
+    })
   }
+});
 
-  event.returnValue = stock_data;
+ipc.on('loadStockData', (event) => {
+  event.returnValue = loadDataSync(STOCK_DATA_FILE_NAME);
 });
 
 ipc.on('saveStockData', (event, target_data) => {
   saveDataSync(STOCK_DATA_FILE_NAME, target_data);
 });
 
-ipc.on('loadConfigDataSync', (event) => {
-  let config = '';
-  let file_path = path.join(user_data_path, CONFIG_FILE_NAME);
-  if (fs.existsSync(file_path)) {
-    let data = fs.readFileSync(file_path, 'utf8');
-    config = JSON.parse(data);
-  }
-
-  event.returnValue = config;
+ipc.on('loadConfigData', (event) => {
+  event.returnValue = setting_data;
 });
 
-app.on('will-quit', () => {
-  console.log('kill core process');
-  core_proc.kill();
-  core_proc = null;
+ipc.on('saveConfigData', (event, target_data) => {
+  setting_data = target_data;
+  saveDataSync(CONFIG_FILE_NAME, target_data);
 });
-
 
 // main function
 function triggerTrayCmd(param) {
@@ -285,3 +313,16 @@ function saveDataSync(file_name, target_data){
   console.log('save ' + file_name);
   fs.writeFileSync(path.join(user_data_path, file_name), JSON.stringify(target_data), 'utf8');
 }
+
+function loadDataSync(file_name) {
+  console.log('load ' + file_name);
+  let output = '';
+  let file_path = path.join(user_data_path, file_name);
+  if (fs.existsSync(file_path)) {
+    let data = fs.readFileSync(file_path, 'utf8');
+    output = JSON.parse(data);
+  }
+
+  return output;
+}
+
