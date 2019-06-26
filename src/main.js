@@ -37,10 +37,7 @@ let core_proc = null;
 var root_path = '';
 var user_data_path = '';
 
-// notification
-// Def
-//const USER_DATA = 'user_data';
-//const CONFIG_FILE_NAME = 'notification.json'
+var setting_data = {};
 
 const tray_list = [
   {
@@ -88,6 +85,7 @@ const menu_template = [
   }
 ]
 
+// app register
 app.on('ready', () => {
   let icon = path.join(__dirname, "","tray-icon.png");
   appIcon = new Tray(icon);
@@ -177,6 +175,13 @@ app.on('ready', () => {
 
 });
 
+app.on('will-quit', () => {
+  console.log('kill core process');
+  core_proc.kill();
+  core_proc = null;
+});
+
+
 // ipc register
 ipc.on('getPort', (event) => {
   console.log('get port: ' + port);
@@ -236,38 +241,21 @@ ipc.on('openSettingWindow', () => {
   }
 });
 
-ipc.on('loadStockDataSync', (event) => {
-  let stock_data = '';
-  let file_path = path.join(user_data_path, STOCK_DATA_FILE_NAME);
-  if (fs.existsSync(file_path)) {
-    let data = fs.readFileSync(file_path, 'utf8');
-    stock_data = JSON.parse(data);
-  }
-
-  event.returnValue = stock_data;
+ipc.on('loadStockData', (event) => {
+  event.returnValue = loadDataSync(STOCK_DATA_FILE_NAME);
 });
 
 ipc.on('saveStockData', (event, target_data) => {
   saveDataSync(STOCK_DATA_FILE_NAME, target_data);
 });
 
-ipc.on('loadConfigDataSync', (event) => {
-  let config = '';
-  let file_path = path.join(user_data_path, CONFIG_FILE_NAME);
-  if (fs.existsSync(file_path)) {
-    let data = fs.readFileSync(file_path, 'utf8');
-    config = JSON.parse(data);
-  }
-
-  event.returnValue = config;
+ipc.on('loadConfigData', (event) => {
+  event.returnValue = setting_data;
 });
 
-app.on('will-quit', () => {
-  console.log('kill core process');
-  core_proc.kill();
-  core_proc = null;
+ipc.on('saveConfigData', (event, target_data) => {
+  saveDataSync(CONFIG_FILE_NAME, target_data);
 });
-
 
 // main function
 function triggerTrayCmd(param) {
@@ -305,4 +293,40 @@ function addCmdToTrayMenu(cmd) {
 function saveDataSync(file_name, target_data){
   console.log('save ' + file_name);
   fs.writeFileSync(path.join(user_data_path, file_name), JSON.stringify(target_data), 'utf8');
+}
+
+function loadDataSync(file_name) {
+  console.log('load ' + file_name);
+  let output = '';
+  let file_path = path.join(user_data_path, file_name);
+  if (fs.existsSync(file_path)) {
+    let data = fs.readFileSync(file_path, 'utf8');
+    output = JSON.parse(data);
+  }
+
+  return output;
+}
+
+
+
+// OnStart
+setting_data = loadDataSync(CONFIG_FILE_NAME);
+
+if (Object.keys(setting_data).length === 0) {
+  setting_data = {
+    "data": {
+      "sync": {
+        "day_start": "2125",
+        "day_end": "0505",
+        "week_sun": false,
+        "week_mon": true,
+        "week_tue": true,
+        "week_wed": true,
+        "week_thu": true,
+        "week_fri": true,
+        "week_sat": false,
+        "interval": 10
+      }
+    }
+  }
 }

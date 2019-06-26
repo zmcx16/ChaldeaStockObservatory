@@ -8,7 +8,7 @@ var client = new zerorpc.Client();
 
 // var
 var stock_data = {};
-var config = {};
+var setting_data = {};
 var input_dialog_now='';
 var check_dialog_now = '';
 var update_status = {};     //'key': bool
@@ -41,7 +41,7 @@ ipc.on('getPort_callback', (event, port) => {
 
       updateOHLCV(); //run now
 
-      let update_time = config['OHLCV_Interval'];
+      let update_time = setting_data['data']['sync']['interval'];
       if (update_time && update_time < MIN_UPDATE_TIME){
         update_time = MIN_UPDATE_TIME;
       }
@@ -58,7 +58,7 @@ ipc.on('doSaveStockData', () => {
 
 $(document).ready(function () {
 
-  stock_data = ipc.sendSync('loadStockDataSync');
+  stock_data = ipc.sendSync('loadStockData');
 
   if (Object.keys(stock_data).length === 0){
     stock_data['ListView'] = [
@@ -73,13 +73,7 @@ $(document).ready(function () {
     ];
   }
 
-  config = ipc.sendSync("loadConfigDataSync");
-  if (Object.keys(config).length === 0) {
-    config = {};
-    config['OHLCV_Interval'] = MIN_UPDATE_TIME;
-    console.log(config['OHLCV_Interval']);
-  }
- 
+  setting_data = ipc.sendSync("loadConfigData");
   ipc.send('getPort');
 
   $(document).click(function (event) {
@@ -435,7 +429,7 @@ function initStockSetting() {
 }
 
 function loadList() {
-//new Date().toLocaleString('en-En',{weekday: "long", month: "long", day: "numeric"})
+
   $(".item").remove();
   $("#group-list-select").empty();
   stock_data['ListView'].forEach(function (item) {
