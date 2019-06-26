@@ -10,6 +10,16 @@ $(document).ready(function () {
 
     setting_data = ipc.sendSync("loadConfigData");
     loadSetting();
+
+    $('#ok-btn').click(function () {
+        SaveSetting();
+        window.close();
+    });
+
+    $('#cancel-btn').click(function () {
+        window.close();
+    });
+
 });
 
 // main function
@@ -40,6 +50,6 @@ function SaveSetting() {
     setting_data["data"]["sync"]["week_fri"] = $("#week_fri").prop("checked");
     setting_data["data"]["sync"]["week_sat"] = $("#week_sat").prop("checked");
     setting_data["data"]["sync"]["interval"] = $('#interval')[0].value;
-    
+
     ipc.send("saveConfigData", setting_data);
 }

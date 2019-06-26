@@ -96,6 +96,43 @@ app.on('ready', () => {
   const menu = Menu.buildFromTemplate(menu_template)
   Menu.setApplicationMenu(menu)
 
+  // OnStart
+  if (app_path.indexOf('default_app.asar') != -1)  //dev mode
+    root_path = path.resolve(path.dirname(app_path), '..', '..', '..', '..');
+  else  //binary mode
+    root_path = path.resolve(path.dirname(app_path), '..');
+
+  if (platform == 'linux') {
+    const homedir = os.homedir();
+    user_data_path = path.join(homedir, '.ChaldeaStockObservatory', USER_DATA);
+  } else {
+    user_data_path = path.join(root_path, USER_DATA);
+  }
+
+  if (!fs.existsSync(user_data_path)) {
+    fs.mkdirSync(user_data_path, { recursive: true });
+  }
+
+  setting_data = loadDataSync(CONFIG_FILE_NAME);
+  if (Object.keys(setting_data).length === 0) {
+    setting_data = {
+      "data": {
+        "sync": {
+          "day_start": "2125",
+          "day_end": "0505",
+          "week_sun": false,
+          "week_mon": true,
+          "week_tue": true,
+          "week_wed": true,
+          "week_thu": true,
+          "week_fri": true,
+          "week_sat": false,
+          "interval": 10
+        }
+      }
+    }
+  }
+
   // render process
   mainWindow = new BrowserWindow({
 
@@ -147,25 +184,6 @@ app.on('ready', () => {
     }
 
   });
-
-  //get path
-  if (app_path.indexOf('default_app.asar') != -1)  //dev mode
-    root_path = path.resolve(path.dirname(app_path), '..', '..', '..', '..');
-  else  //binary mode
-    root_path = path.resolve(path.dirname(app_path), '..');
-
-  if (platform == 'linux') {
-    const homedir = os.homedir();
-    user_data_path = path.join(homedir, '.ChaldeaStockObservatory', USER_DATA);
-  } else {
-    user_data_path = path.join(root_path, USER_DATA);
-  }
-
-  if (!fs.existsSync(user_data_path)) {
-    fs.mkdirSync(user_data_path, { recursive: true });
-  }
-
-
 
   mainWindow.on('close', (event) => {
     event.sender.send('doSaveStockData');
@@ -230,7 +248,7 @@ ipc.on('openSettingWindow', () => {
       webPreferences: {
         nodeIntegration: true
       },
-      width: 680, height: 300
+      width: 680, height: 340
     });
 
     settingWindow.loadURL(`file://${__dirname}/setting.html`);
@@ -254,6 +272,7 @@ ipc.on('loadConfigData', (event) => {
 });
 
 ipc.on('saveConfigData', (event, target_data) => {
+  setting_data = target_data;
   saveDataSync(CONFIG_FILE_NAME, target_data);
 });
 
@@ -307,26 +326,3 @@ function loadDataSync(file_name) {
   return output;
 }
 
-
-
-// OnStart
-setting_data = loadDataSync(CONFIG_FILE_NAME);
-
-if (Object.keys(setting_data).length === 0) {
-  setting_data = {
-    "data": {
-      "sync": {
-        "day_start": "2125",
-        "day_end": "0505",
-        "week_sun": false,
-        "week_mon": true,
-        "week_tue": true,
-        "week_wed": true,
-        "week_thu": true,
-        "week_fri": true,
-        "week_sat": false,
-        "interval": 10
-      }
-    }
-  }
-}

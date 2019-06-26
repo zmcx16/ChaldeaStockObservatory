@@ -46,3 +46,11 @@ td{
 .label-input, .input-label{
   display: inline-block;
 }
+
+.footer{
+  text-align: right;
+}
+
+.ok-cancel-btn{
+  margin: 20px 15px;
+}
