@@ -120,14 +120,8 @@ app.on('ready', () => {
         "sync": {
           "day_start": "2125",
           "day_end": "0505",
-          "week_sun": false,
-          "week_mon": true,
-          "week_tue": true,
-          "week_wed": true,
-          "week_thu": true,
-          "week_fri": true,
-          "week_sat": false,
-          "interval": 10
+          "week": [false, true, true, true, true, true, false],
+          "interval": "10"
         }
       }
     }
@@ -248,7 +242,7 @@ ipc.on('openSettingWindow', () => {
       webPreferences: {
         nodeIntegration: true
       },
-      width: 680, height: 340
+      width: 680, height: 360
     });
 
     settingWindow.loadURL(`file://${__dirname}/setting.html`);
@@ -274,6 +268,7 @@ ipc.on('loadConfigData', (event) => {
 ipc.on('saveConfigData', (event, target_data) => {
   setting_data = target_data;
   saveDataSync(CONFIG_FILE_NAME, target_data);
+  mainWindow.webContents.send('syncConfigData', setting_data);
 });
 
 // main function

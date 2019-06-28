@@ -12,6 +12,7 @@ var setting_data = {};
 var input_dialog_now='';
 var check_dialog_now = '';
 var update_status = {};     //'key': bool
+var enable_sync = false;
 
 //interval
 // eslint-disable-next-line no-unused-vars
@@ -38,14 +39,7 @@ ipc.on('getPort_callback', (event, port) => {
       console.error(error);
       console.error(res);
     } else {
-
-      updateOHLCV(); //run now
-
-      let update_time = setting_data['data']['sync']['interval'];
-      if (update_time && update_time < MIN_UPDATE_TIME){
-        update_time = MIN_UPDATE_TIME;
-      }
-      update_OHLCV_interval = setInterval(updateOHLCV, 10 * 1000);
+      update_OHLCV_interval = setInterval(updateOHLCV, 0);
     }
   });
 
@@ -53,6 +47,10 @@ ipc.on('getPort_callback', (event, port) => {
 
 ipc.on('doSaveStockData', () => {
   ipc.send("saveStockData", stock_data);
+});
+
+ipc.on('syncConfigData', (event, data) => {
+  setting_data = data;
 });
 
 
@@ -289,6 +287,31 @@ function updateStockColor(target) {
 
 function updateOHLCV(){
 
+  // check if keep sync data
+  let time_now = new Date();
+  let timestamp_now = Math.floor(time_now.getTime() / 1000);
+
+  let day_start_int = parseInt(setting_data['data']['sync']['day_start']);
+  let day_start = new Date(time_now.getFullYear(), time_now.getMonth(), time_now.getDate(), day_start_int / 100, day_start_int % 100);
+  let timestamp_start = Math.floor(day_start.getTime() / 1000);
+
+  let day_end_int = parseInt(setting_data['data']['sync']['day_end']);
+  let day_end = new Date(time_now.getFullYear(), time_now.getMonth(), time_now.getDate(), day_end_int / 100, day_end_int % 100);
+  let timestamp_end = Math.floor(day_end.getTime() / 1000);
+
+  if (timestamp_start > timestamp_end){
+    timestamp_start -= (60 * 60 * 24);
+    day_start.setDate(day_start.getDate() -1);
+  }
+
+  if (timestamp_now >= timestamp_start && timestamp_now <= timestamp_end && setting_data['data']['sync']['week'][day_start.getDay()]) {
+    enable_sync = true;
+  }
+  else {
+    enable_sync = false;
+  }
+
+  // update UI
   let list_index = $("#group-list-select")[0].selectedIndex;
   let now_stocks = stock_data['ListView'][list_index].data;
   now_stocks.forEach(function (item) {
@@ -301,6 +324,17 @@ function updateOHLCV(){
       }
     });
   });
+
+  clearInterval(update_OHLCV_interval);
+  
+  if (enable_sync){
+    let update_time = setting_data['data']['sync']['interval'];
+    if (update_time && update_time < MIN_UPDATE_TIME) {
+      update_time = MIN_UPDATE_TIME;
+    }
+    update_OHLCV_interval = setInterval(updateOHLCV, update_time * 1000); 
+  }
+
 }
 
 // eslint-disable-next-line no-unused-vars
@@ -330,8 +364,13 @@ function updateOHLCV_UI(stock){
     $('#update-progress')[0].innerHTML = '100%';
   }
 
+  let led = "led-blue";
+  if (enable_sync){
+    led = "led-green";
+  }
+
   let d = new Date();
-  $('#last-update-time')[0].innerHTML = '<div class="led-green" id="last-update-time-led"></div>' + formatDate(d, "MM/dd") + "&nbsp;&nbsp;&nbsp;" + formatDate(d, "hh:mm:ss"); 
+  $('#last-update-time')[0].innerHTML = '<div class="' + led +'" id="last-update-time-led"></div>' + formatDate(d, "MM/dd") + "&nbsp;&nbsp;&nbsp;" + formatDate(d, "hh:mm:ss"); 
 }
 
 function updateCol(symbol, label, value){
