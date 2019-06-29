@@ -263,52 +263,10 @@ function ResetReorderButton(){
   $('.check-tab-wrap').attr('style', 'display: inline-block;');
 }
 
-function updateStocksColor(){
-
-  let item_list = $('.item');
-  item_list.each(function (row_index) {
-    updateStockColor(item_list[row_index]);
-  });
-}
-
-function updateStockColor(target) {
-
-  let change = $(target).children('.list-cell.changeP');
-  let sign = Math.sign(parseFloat($(change[0])[0].innerText));
-  if (sign === 1) {
-    $(change[0]).attr('style', 'color:green;');
-  } else if (sign == -1) {
-    $(change[0]).attr('style', 'color:red;');
-  } else {
-    $(change[0]).attr('style', 'color:black;');
-  }
-}
 
 function updateOHLCV(){
 
-  // check if keep sync data
-  let time_now = new Date();
-  let timestamp_now = Math.floor(time_now.getTime() / 1000);
-
-  let day_start_int = parseInt(setting_data['data']['sync']['day_start']);
-  let day_start = new Date(time_now.getFullYear(), time_now.getMonth(), time_now.getDate(), day_start_int / 100, day_start_int % 100);
-  let timestamp_start = Math.floor(day_start.getTime() / 1000);
-
-  let day_end_int = parseInt(setting_data['data']['sync']['day_end']);
-  let day_end = new Date(time_now.getFullYear(), time_now.getMonth(), time_now.getDate(), day_end_int / 100, day_end_int % 100);
-  let timestamp_end = Math.floor(day_end.getTime() / 1000);
-
-  if (timestamp_start > timestamp_end){
-    timestamp_start -= (60 * 60 * 24);
-    day_start.setDate(day_start.getDate() -1);
-  }
-
-  if (timestamp_now >= timestamp_start && timestamp_now <= timestamp_end && setting_data['data']['sync']['week'][day_start.getDay()]) {
-    enable_sync = true;
-  }
-  else {
-    enable_sync = false;
-  }
+  enable_sync = needEnableSync(setting_data['data']['sync']);
 
   // update UI
   let list_index = $("#group-list-select")[0].selectedIndex;
@@ -319,7 +277,7 @@ function updateOHLCV(){
         console.error(error);
       } else {
         //console.log(res);
-        updateOHLCV_UI(res);
+        updateOHLCV_UI(res, enable_sync, update_status);
       }
     });
   });
@@ -341,43 +299,7 @@ function navToWebsite(link){
   ipc.send('navToWebsite', link);
 }
 
-function updateOHLCV_UI(stock){
 
-  updateCol(stock['symbol'], 'openP', stock['openP']);
-  updateCol(stock['symbol'], 'highP', stock['highP']);
-  updateCol(stock['symbol'], 'lowP', stock['lowP']);
-  updateCol(stock['symbol'], 'closeP', stock['closeP']);
-  updateCol(stock['symbol'], 'volume', stock['volume']);
-  updateCol(stock['symbol'], 'changeP', stock['changeP']);
-  updateStockColor($('.item.stock_' + stock['symbol'])[0]);
-
-  update_status[stock['symbol']] = true;
-  let update_cnt = Object.keys(update_status).length;
-  let total_num = $('.item').length;
-  if (update_cnt < total_num){
-    //console.log(update_cnt);
-    $('#update-progress')[0].style.width = (update_cnt * 100 / total_num).toString() + '%';
-    $('#update-progress')[0].innerHTML = (Math.round(update_cnt*100 / total_num)).toString() + '%';
-  }else{
-    $('#update-progress')[0].style.width = '100%';
-    $('#update-progress')[0].innerHTML = '100%';
-  }
-
-  let led = "led-blue";
-  if (enable_sync){
-    led = "led-green";
-  }
-
-  let d = new Date();
-  $('#last-update-time')[0].innerHTML = '<div class="' + led +'" id="last-update-time-led"></div>' + formatDate(d, "MM/dd") + "&nbsp;&nbsp;&nbsp;" + formatDate(d, "hh:mm:ss"); 
-}
-
-function updateCol(symbol, label, value){
-  let target = $('.item.stock_' + symbol + ' .list-cell.' + label)[0];
-  if (target){
-    target.innerText = value;
-  }
-}
 
 function initStockSetting() {
 
