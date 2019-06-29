@@ -1,3 +1,6 @@
+// common def
+const MIN_UPDATE_TIME = 10;
+
 // common function
 function getPosition(element) {
     var x = 0;

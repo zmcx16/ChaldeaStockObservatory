@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-const MIN_UPDATE_TIME = 10;
 
 const electron = require('electron');
 const ipc = electron.ipcRenderer;
@@ -53,7 +52,7 @@ ipc.on('syncConfigData', (event, data) => {
   setting_data = data;
 });
 
-
+// OnStart
 $(document).ready(function () {
 
   stock_data = ipc.sendSync('loadStockData');
