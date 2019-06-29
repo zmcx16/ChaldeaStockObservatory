@@ -24,6 +24,26 @@ var notification_data = {
                     }
                 }
             ]
+        },
+        {
+            "symbol": "T",
+            "openP": "30.83",
+            "highP": "37.42",
+            "lowP": "30.55",
+            "closeP": "36.19",
+            "changeP": "3.95%",
+            "volume": "15.38M",
+            "enable": true,
+            "edit": [
+                {
+                    "name": "C1",
+                    "type": "st",
+                    "value": {
+                        "st_p": 10,
+                        "st_v": 4
+                    }
+                }
+            ]
         }
     ],
     "status": {
@@ -96,6 +116,9 @@ function updateOHLCV() {
 
 function initStockSetting() {
 
+    //unbind event
+    $('.btn-toggle').unbind("click");
+
     $(".item").remove();
     notification_data.data.forEach(function (item) {
         var class_name = 'stock_' + item.symbol;
@@ -108,15 +131,34 @@ function initStockSetting() {
             temp = temp.replace('{closeP}', item.closeP);
             temp = temp.replace('{changeP}', item.changeP);
             temp = temp.replace('{volume}', item.volume);
-            $("#list").append(temp);
             if (item.enable){
-                setLedStatus(item.symbol, "led-green");
+                temp = temp.replace('{active}', 'active');
             }
             else{
-                setLedStatus(item.symbol, "led-blue");
+                temp = temp.replace('{active}', '');
             }
 
+            $("#list").append(temp);
+
+            setLedStatus(item.symbol, item.enable ? "led-green" : "led-blue");
         }
+    });
+
+    $('.btn-toggle').on('click', function (event) {
+        var button = event.target;
+        let item_name = $(this).closest('li')[0].className;
+        let stock_name = item_name.replace('item stock_','');
+        notification_data.data.forEach(function (item) {
+            if (item.symbol === stock_name) {
+                item.enable = button.className.indexOf('active') == -1; //in this timing, UI doesn't change yet.
+                if (item.enable) {
+                    setLedStatus(item.symbol, "led-green");
+                }
+                else {
+                    setLedStatus(item.symbol, "led-blue");
+                }
+            }
+        });  
     });
 
     updateStocksColor();
@@ -145,7 +187,7 @@ const notification_container_template = `
     <span class="list-cell volume">{volume}</span>
     <div class="list-cell edit"><button type="button" class="click-btn-v1 edit-btn">Edit</button></div>
     <div class="list-cell enable">
-        <button type="button" class="btn btn-sm btn-toggle" data-toggle="button" aria-pressed="false" autocomplete="off">
+        <button type="button" class="btn btn-sm btn-toggle {active}" data-toggle="button" aria-pressed="false" autocomplete="off">
             <div class="handle"></div>
         </button>
     </div>
