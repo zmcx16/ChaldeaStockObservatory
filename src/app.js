@@ -248,7 +248,7 @@ $(document).ready(function () {
 
 // zerorpc function
 function sendCmdToCore(cmd, msg, callback){
-  console.log('sendCmdToCore: ' + cmd);
+  //console.log('sendCmdToCore: ' + cmd);
   client.invoke(cmd, msg, (error, res) => {
     callback(error, res);
   });

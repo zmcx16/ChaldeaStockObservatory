@@ -118,7 +118,42 @@ function initStockSetting() {
 
     //unbind event
     $('.btn-toggle').unbind("click");
+    $('#add-button').unbind("click");
 
+
+    //register event
+    if (!$(event.target).is("#add-button, #add-popup, #search-bar, #add-symbol-input, #search-icon, .add-popup-text")) {
+        $("#add-popup").hide();
+    }
+
+    $('#add-button').click(function () {
+        var add_btn_loc = getPosition($('#add-button')[0]);
+        var offset_x = $('#add-button')[0].offsetWidth / 2;
+        var offset_y = $('#add-button')[0].offsetHeight;
+        $('#add-popup').attr('style', `display: block; left: ${add_btn_loc.x + offset_x}; top: ${add_btn_loc.y + offset_y};`);
+    });
+
+    $('#search-icon').click(function () {
+
+        let symbols = $('#add-symbol-input')[0].value.split(",");
+        $('#add-symbol-input')[0].value = "";
+        symbols.forEach(function (symbol) {
+            let stock = {
+                "symbol": symbol,
+                "openP": "-",
+                "highP": "-",
+                "lowP": "-",
+                "closeP": "-",
+                "changeP": "0%",
+                "volume": "-",
+                "enable": true,
+                "edit": [{}]
+            };
+            notification_data["data"].data.push(stock);
+        })
+    })
+
+    // set notification item
     $(".item").remove();
     notification_data.data.forEach(function (item) {
         var class_name = 'stock_' + item.symbol;

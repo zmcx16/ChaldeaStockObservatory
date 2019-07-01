@@ -23,9 +23,6 @@ const platform = os.platform();
 const child_process = require('child_process');
 const detect_port = require('detect-port');
 
-//const notification_core = require('./notification-core.js');
-//notification_core.init();
-
 let appIcon = null;
 let mainWindow = null;
 let notifyWindow = null;
@@ -38,6 +35,58 @@ var root_path = '';
 var user_data_path = '';
 
 var setting_data = {};
+
+// notification
+var notification_data = {
+  "data": [
+    {
+      "symbol": "INTC",
+      "openP": "45.83",
+      "highP": "46.42",
+      "lowP": "45.55",
+      "closeP": "46.19",
+      "changeP": "1.95%",
+      "volume": "15.38M",
+      "enable": false,
+      "edit": [
+        {
+          "name": "C1",
+          "type": "st",
+          "value": {
+            "st_p": 10,
+            "st_v": 4
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "T",
+      "openP": "30.83",
+      "highP": "37.42",
+      "lowP": "30.55",
+      "closeP": "36.19",
+      "changeP": "3.95%",
+      "volume": "15.38M",
+      "enable": true,
+      "edit": [
+        {
+          "name": "C1",
+          "type": "st",
+          "value": {
+            "st_p": 10,
+            "st_v": 4
+          }
+        }
+      ]
+    }
+  ],
+  "status": {
+    "enable_sync": false
+  }
+}
+
+const NotificationCore = require('./notification-core.js');
+
 
 const tray_list = [
   {
@@ -177,7 +226,12 @@ app.on('ready', () => {
       core_proc = child_process.spawn('python', [script, '-port', port]);
     }
 
+    //notification-core
+    NotificationCore.onStart(notification_data, setting_data, port, NotificationCoreEvent);
+    //notification_core = new NotificationCore(notification_data, setting_data, port);
+    //notification_core.doScanNotification();
   });
+
 
   mainWindow.on('close', (event) => {
     event.sender.send('doSaveStockData');
@@ -321,3 +375,9 @@ function loadDataSync(file_name) {
   return output;
 }
 
+
+// Notification-Core event
+function NotificationCoreEvent(data){
+  notification_data = data;
+  //console.log(notification_data);
+}

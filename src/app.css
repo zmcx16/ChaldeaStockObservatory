@@ -73,39 +73,6 @@ body {
   font-size: 14px;
 }
 
-/* popup add window */
-#add-popup{
-    font-size: 16px;
-    display: none;
-    background-color: ivory;
-    width: 230px;
-    padding: 15px 15px;
-    /*left: 98px;*/
-    /*top: 127px;*/
-    position: fixed;
-    z-index: 2;
-    box-shadow: 0 2px 4px rgba(0,0,0,.2);
-}
-
-#search-bar{
-  margin-bottom: 15px;
-}
-
-#add-symbol-input{
-  font-size: 16px;
-  width: 190px;
-}
-
-#search-icon{
-  width: 22px;
-  height: 30px;
-  position: fixed;
-  cursor: pointer;
-  position: absolute;
-  right: 26px;
-  padding: 0px;
-}
-
 #last-update-time-led{
   display: inline-block;
   vertical-align: text-top;
