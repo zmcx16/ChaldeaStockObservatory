@@ -1,6 +1,7 @@
 
 const electron = require('electron');
 const ipc = electron.ipcRenderer;
+const NotificationDef = require('./notification-def.js');
 
 // var
 var notification_data = {
@@ -116,15 +117,19 @@ function updateOHLCV() {
 
 function initStockSetting() {
 
-    //unbind event
+    // unbind event
     $('.btn-toggle').unbind("click");
     $('#add-button').unbind("click");
 
+    // reset status
+    $("#add-popup").hide();
 
-    //register event
-    if (!$(event.target).is("#add-button, #add-popup, #search-bar, #add-symbol-input, #search-icon, .add-popup-text")) {
-        $("#add-popup").hide();
-    }
+    // register event
+    $(document).click(function (event) {
+        if (!$(event.target).is("#add-button, #add-popup, #search-bar, #add-symbol-input, #search-icon, .add-popup-text")) {
+            $("#add-popup").hide();
+        }
+    });
 
     $('#add-button').click(function () {
         var add_btn_loc = getPosition($('#add-button')[0]);

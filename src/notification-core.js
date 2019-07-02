@@ -1,16 +1,19 @@
 const zerorpc = require("zerorpc");
 var client = new zerorpc.Client();
+const NotificationDef = require('./notification-def.js');
 
 // var
 var notification_data = {};
+var notification_status = {};
 var setting_data = {};
 var notification_core_interval = null;
 var port = null;
 var notification_core_event = null;
 
 
-exports.onStart = function (_notification_data, _setting_data, _port, _notification_core_event) {
-    notification_data = _notification_data;  
+exports.onStart = function (_notification_data, _notification_status, _setting_data, _port, _notification_core_event) {
+    notification_data = _notification_data;
+    notification_status = _notification_status;
     setting_data = _setting_data;
     port = _port;
     notification_core_event = _notification_core_event;
@@ -31,7 +34,8 @@ function doScanNotification() {
                 console.error(error);
             } else {
                 updateStockInNotificationData(res);
-                notification_core_event(notification_data);
+                checkConditions();
+                notification_core_event(notification_data, notification_status);
             }
         });
     });
@@ -50,8 +54,26 @@ function updateStockInNotificationData(stock){
     });
 }
 
+function checkConditions(){
+    notification_data.data.forEach(function (item) {
+        item.edit.forEach(function (condition) {
+            CheckFuncMappingTable[condition[NotificationDef.KEY_TYPE]]();
+        });
+    });
+}
+
 function sendCmdToCore(cmd, msg, callback) {
     client.invoke(cmd, msg, (error, res) => {
         callback(error, res);
     });
 }
+
+var func_st = () => {
+    console.log("xxx");
+}
+
+var CheckFuncMappingTable = {
+    [NotificationDef.SMALLER_THAN]: func_st
+}
+
+

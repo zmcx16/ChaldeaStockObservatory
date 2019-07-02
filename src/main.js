@@ -23,6 +23,10 @@ const platform = os.platform();
 const child_process = require('child_process');
 const detect_port = require('detect-port');
 
+// import
+const NotificationDef = require('./notification-def.js');
+const NotificationCore = require('./notification-core.js');
+
 let appIcon = null;
 let mainWindow = null;
 let notifyWindow = null;
@@ -52,41 +56,20 @@ var notification_data = {
         {
           "name": "C1",
           "type": "st",
-          "value": {
-            "st_p": 10,
-            "st_v": 4
-          }
-        }
-      ]
-    },
-    {
-      "symbol": "T",
-      "openP": "30.83",
-      "highP": "37.42",
-      "lowP": "30.55",
-      "closeP": "36.19",
-      "changeP": "3.95%",
-      "volume": "15.38M",
-      "enable": true,
-      "edit": [
-        {
-          "name": "C1",
-          "type": "st",
-          "value": {
-            "st_p": 10,
-            "st_v": 4
-          }
+          "value": [
+            {
+              "th": 45
+            }
+          ]
         }
       ]
     }
-  ],
-  "status": {
-    "enable_sync": false
-  }
+  ]
 }
 
-const NotificationCore = require('./notification-core.js');
-
+var notification_status = {
+  "message": []
+}
 
 const tray_list = [
   {
@@ -227,7 +210,7 @@ app.on('ready', () => {
     }
 
     //notification-core
-    NotificationCore.onStart(notification_data, setting_data, port, NotificationCoreEvent);
+    NotificationCore.onStart(notification_data, notification_status, setting_data, port, NotificationCoreEvent);
     //notification_core = new NotificationCore(notification_data, setting_data, port);
     //notification_core.doScanNotification();
   });
@@ -377,7 +360,8 @@ function loadDataSync(file_name) {
 
 
 // Notification-Core event
-function NotificationCoreEvent(data){
-  notification_data = data;
-  //console.log(notification_data);
+function NotificationCoreEvent(_notification_data, _notification_status){
+  notification_data = _notification_data;
+  notification_status = _notification_status;
+  console.log(notification_data);
 }
