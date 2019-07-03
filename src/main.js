@@ -41,17 +41,11 @@ var user_data_path = '';
 var setting_data = {};
 
 // notification
-var notification_data = {
+var notification_setting = {
   "data": [
     {
       "symbol": "INTC",
-      "openP": "45.83",
-      "highP": "46.42",
-      "lowP": "45.55",
-      "closeP": "46.19",
-      "changeP": "1.95%",
-      "volume": "15.38M",
-      "enable": false,
+      "enable": true,
       "edit": [
         {
           "name": "C1",
@@ -68,8 +62,25 @@ var notification_data = {
 }
 
 var notification_status = {
-  "message": []
 }
+/*
+  "data": [
+    {
+      "symbol": "INTC",
+      "openP": "45.83",
+      "highP": "46.42",
+      "lowP": "45.55",
+      "closeP": "46.19",
+      "changeP": "1.95%",
+      "volume": "15.38M",
+      "messages":[
+        {
+          "name": "C1",
+          "trigger": "true" 
+        }
+      ]
+    }]
+*/
 
 const tray_list = [
   {
@@ -210,7 +221,7 @@ app.on('ready', () => {
     }
 
     //notification-core
-    NotificationCore.onStart(notification_data, notification_status, setting_data, port, NotificationCoreEvent);
+    NotificationCore.onStart(notification_setting, notification_status, setting_data, port, NotificationCoreEvent);
     //notification_core = new NotificationCore(notification_data, setting_data, port);
     //notification_core.doScanNotification();
   });
@@ -360,8 +371,7 @@ function loadDataSync(file_name) {
 
 
 // Notification-Core event
-function NotificationCoreEvent(_notification_data, _notification_status){
-  notification_data = _notification_data;
+function NotificationCoreEvent(_notification_status){
   notification_status = _notification_status;
-  console.log(notification_data);
+  console.log(notification_status);
 }
