@@ -49,12 +49,11 @@ var notification_setting = {
       "edit": [
         {
           "name": "C1",
-          "type": "st",
-          "value": [
-            {
-              "th": 45
-            }
-          ]
+          "type": "ArrivalPrice",
+          "args":{
+              "GreaterThan": 49,
+              "LessThan": 35
+          }
         }
       ]
     }
