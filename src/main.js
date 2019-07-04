@@ -23,8 +23,9 @@ const platform = os.platform();
 const child_process = require('child_process');
 const detect_port = require('detect-port');
 
-//const notification_core = require('./notification-core.js');
-//notification_core.init();
+// import
+const NotificationDef = require('./notification-def.js');
+const NotificationCore = require('./notification-core.js');
 
 let appIcon = null;
 let mainWindow = null;
@@ -38,6 +39,47 @@ var root_path = '';
 var user_data_path = '';
 
 var setting_data = {};
+
+// notification
+var notification_setting = {
+  "data": [
+    {
+      "symbol": "INTC",
+      "enable": true,
+      "edit": [
+        {
+          "name": "C1",
+          "type": "ArrivalPrice",
+          "args":{
+              "GreaterThan": 49,
+              "LessThan": 35
+          }
+        }
+      ]
+    }
+  ]
+}
+
+var notification_status = {
+}
+/*
+  "data": [
+    {
+      "symbol": "INTC",
+      "openP": "45.83",
+      "highP": "46.42",
+      "lowP": "45.55",
+      "closeP": "46.19",
+      "changeP": "1.95%",
+      "volume": "15.38M",
+      "messages":[
+        {
+          "name": "C1",
+          "trigger": "true" 
+        }
+      ]
+    }]
+*/
 
 const tray_list = [
   {
@@ -177,7 +219,12 @@ app.on('ready', () => {
       core_proc = child_process.spawn('python', [script, '-port', port]);
     }
 
+    //notification-core
+    NotificationCore.onStart(notification_setting, notification_status, setting_data, port, NotificationCoreEvent);
+    //notification_core = new NotificationCore(notification_data, setting_data, port);
+    //notification_core.doScanNotification();
   });
+
 
   mainWindow.on('close', (event) => {
     event.sender.send('doSaveStockData');
@@ -321,3 +368,9 @@ function loadDataSync(file_name) {
   return output;
 }
 
+
+// Notification-Core event
+function NotificationCoreEvent(_notification_status){
+  notification_status = _notification_status;
+  console.log(notification_status);
+}

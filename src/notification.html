@@ -3,19 +3,30 @@
     <title>Notification</title>
     <link rel="stylesheet" href="./node_modules/bootstrap/dist/css/bootstrap.min.css">
     <link href="common.css" rel="stylesheet">
+    <link href="led-light.css" rel="stylesheet">
+    <link href="button-toggle.css" rel="stylesheet">
+    <link href="notification.css" rel="stylesheet">
     <script>
       window.$ = window.jQuery = require('./node_modules/jquery/dist/jquery.min.js');
       require('./node_modules/bootstrap/dist/js/bootstrap.min.js');
     </script>
-    <link href="led-light.css" rel="stylesheet">
-    <link href="button-toggle.css" rel="stylesheet">
-    <link href="notification.css" rel="stylesheet">
+    <script src="common.js"></script>
     <script src="notification.js"></script>
   </head>
   <body>
     <div id="main-toolbar">
       <div class="main-tool"><button class="text-btn" id="add-button">Add</button></div>
-      <div class="main-tool"><button class="text-btn" id="del-button">Del</button></div>
+        <div id="add-popup">
+          <div id="search-bar">
+            <input type="text" id="add-symbol-input" placeholder=" T, GOOG, AAPL" name="search">
+            <svg id="search-icon" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+              <path
+                d="M31 28h-1.59l-.55-.55C30.82 25.18 32 22.23 32 19c0-7.18-5.82-13-13-13S6 11.82 6 19s5.82 13 13 13c3.23 0 6.18-1.18 8.45-3.13l.55.55V31l10 9.98L40.98 38 31 28zm-12 0c-4.97 0-9-4.03-9-9s4.03-9 9-9 9 4.03 9 9-4.03 9-9 9z"
+                fill="#0081f2" />
+              <path d="M0 0h48v48H0z" fill="none" />
+            </svg>
+          </div>
+      </div>
       <div class="main-tool"><button class="text-btn" id="reorder-button">Reorder</button></div>
       <div class="main-tool"></div>
       <div class="main-tool"><span id="last-update-time"><div class="led-green" id="last-update-time-led"></div>06/18&nbsp;&nbsp;&nbsp;01:40:18</span></div>
@@ -33,37 +44,10 @@
           <span class="list-cell highP">High</span>
           <span class="list-cell lowP">Low</span>
           <span class="list-cell closeP">Close</span>
+          <span class="list-cell changeP">Change</span>
           <span class="list-cell volume">Volume</span>
           <span class="list-cell"></span>
           <span class="list-cell"></span>
-        </li>
-        <li class="item stock_T">
-          <div class="status-tab">
-            <div class="led-green"></div>
-            <div class="led-yellow" style="display:none;"></div>
-            <div class="led-grey" style="display:none;"></div>
-          </div>
-          <div class="drag-tab" style="display:none;">
-            <div></div>
-            <div></div>
-            <div></div>
-          </div>
-          <div class="check-tab-wrap" style="display:none;">
-            <div class="custom-control custom-checkbox check-tab">
-              <input type="checkbox" class="custom-control-input" id="checkbox-T" name="stock-checkbox">
-              <label class="custom-control-label" for="checkbox-T"></label>
-            </div>
-          </div>
-          <span class="list-cell symbol">T</span>
-          <span class="list-cell openP">32</span>
-          <span class="list-cell highP">33</span>
-          <span class="list-cell lowP">31</span>
-          <span class="list-cell closeP">32.5</span>
-          <span class="list-cell volume">23.71M</span>
-          <div class="list-cell edit"><button id="edit-T" type="button" class="click-btn-v1 edit-btn">Edit</button></div>
-          <div class="list-cell enable">
-            <button id="enable-T" type="button" class="btn btn-sm btn-toggle" data-toggle="button" aria-pressed="false" autocomplete="off"><div class="handle"></div></button>
-          </div>
         </li>
       </ul>
     </div>
