@@ -276,7 +276,13 @@ function updateOHLCV(){
         console.error(error);
       } else {
         //console.log(res);
-        updateOHLCV_UI(res, enable_sync, update_status);
+        item['openP'] = res['openP'];
+        item['highP'] = res['highP'];
+        item['lowP'] = res['lowP'];
+        item['closeP'] = res['closeP'];
+        item['volume'] = res['volume'];
+        item['changeP'] = res['changeP'];
+        updateOHLCV_UI("app", res, enable_sync, update_status);
       }
     });
   });

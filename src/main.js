@@ -316,7 +316,19 @@ ipc.on('saveConfigData', (event, target_data) => {
   setting_data = target_data;
   saveDataSync(CONFIG_FILE_NAME, target_data);
   mainWindow.webContents.send('syncConfigData', setting_data);
+
+  NotificationCore.syncConfigData(setting_data);
+  if (notifyWindow) {
+    notifyWindow.webContents.send('syncConfigData', setting_data);
+  }
 });
+
+// notification setting
+ipc.on('getNotificationSetting', (event) => {
+  event.returnValue = notification_setting;
+});
+
+
 
 // main function
 function triggerTrayCmd(param) {
@@ -373,4 +385,7 @@ function loadDataSync(file_name) {
 function NotificationCoreEvent(_notification_status){
   notification_status = _notification_status;
   console.log(notification_status);
+  if (notifyWindow) {
+    notifyWindow.webContents.send('syncNotificationStatus', notification_status);
+  }
 }

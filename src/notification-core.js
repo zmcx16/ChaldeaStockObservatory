@@ -1,6 +1,7 @@
 const zerorpc = require("zerorpc");
 var client = new zerorpc.Client();
 const NotificationDef = require('./notification-def.js');
+const Common = require('./common.js');
 
 // var
 var notification_setting = {};
@@ -24,17 +25,24 @@ exports.onStart = function (_notification_setting, _notification_status, _settin
 
 };
 
+exports.syncConfigData = function (_setting_data) {
+    setting_data = _setting_data;
+}
+
 
 // private function
 function doScanNotification() {
-    sendCmdToCore('scan_notification', notification_setting, (error, res) => {
-        if (error) {
-            console.error(error);
-        } else {
-            notification_status = res;
-            notification_core_event(notification_status);
-        }
-    });
+
+    if (Common.needEnableSync(setting_data['data']['sync'])){
+        sendCmdToCore('scan_notification', notification_setting, (error, res) => {
+            if (error) {
+                console.error(error);
+            } else {
+                notification_status = res;
+                notification_core_event(notification_status);
+            }
+        });
+    }
 }
 
 function sendCmdToCore(cmd, msg, callback) {

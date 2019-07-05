@@ -4,73 +4,40 @@ const ipc = electron.ipcRenderer;
 const NotificationDef = require('./notification-def.js');
 
 // var
-var notification_data = {
-    "data": [
-        {
-            "symbol": "INTC",
-            "openP": "45.83",
-            "highP": "46.42",
-            "lowP": "45.55",
-            "closeP": "46.19",
-            "changeP": "1.95%",
-            "volume": "15.38M",
-            "enable": false,
-            "edit": [
-                {
-                    "name": "C1",
-                    "type": "st",
-                    "value": {
-                        "st_p": 10,
-                        "st_v": 4
-                    }
-                }
-            ]
-        },
-        {
-            "symbol": "T",
-            "openP": "30.83",
-            "highP": "37.42",
-            "lowP": "30.55",
-            "closeP": "36.19",
-            "changeP": "3.95%",
-            "volume": "15.38M",
-            "enable": true,
-            "edit": [
-                {
-                    "name": "C1",
-                    "type": "st",
-                    "value": {
-                        "st_p": 10,
-                        "st_v": 4
-                    }
-                }
-            ]
-        }
-    ],
-    "status": {
-        "enable_sync": false
-    }
-}
+var enable_sync = false;
+var notification_setting = {};
+var notification_status = {};
 
 // ipc register
-ipc.on('syncNotificationData', (event, data) => {
-    notification_data = data;
+ipc.on('syncNotificationStatus', (event, data) => {
+    notification_status = data;
     updateOHLCV();
+});
+
+ipc.on('syncConfigData', (event, data) => {
+    setting_data = data;
 });
 
 // OnStart
 $(document).ready(function () {
 
-    //notification_data = ipc.sendSync('getNotificationData');
-    // get notification_data & enable_sync status from core
+    setting_data = ipc.sendSync("loadConfigData");
+    notification_setting = ipc.sendSync('getNotificationSetting');
 
-    if (Object.keys(notification_data).length === 0) {
-        notification_data = {
-            "data": [{}],
-            "status": {
-                "enable_sync": false
-            }
-        };
+    if (Object.keys(notification_status).length === 0) {
+        notification_setting.data.forEach(function (item) {
+            notification_status["data"] = [];
+            notification_status.data.push({
+                "symbol": item.symbol,
+                "openP": "-",
+                "highP": "-",
+                "lowP": "-",
+                "closeP": "-",
+                "changeP": "0%",
+                "volume": "-",
+                "messages": []
+            });
+        })
     }
 
     initStockSetting();
@@ -86,33 +53,20 @@ function setLedStatus(name, led) {
 
 function updateOHLCV() {
 
-    /*
     enable_sync = needEnableSync(setting_data['data']['sync']);
 
     // update UI
-    let list_index = $("#group-list-select")[0].selectedIndex;
-    let now_stocks = stock_data['ListView'][list_index].data;
-    now_stocks.forEach(function (item) {
-        sendCmdToCore('get_realtime_stock', item.symbol, (error, res) => {
-            if (error) {
-                console.error(error);
-            } else {
-                //console.log(res);
-                updateOHLCV_UI(res, enable_sync, update_status);
-            }
-        });
-    });
-
-    clearInterval(update_OHLCV_interval);
-
-    if (enable_sync) {
-        let update_time = setting_data['data']['sync']['interval'];
-        if (update_time && update_time < MIN_UPDATE_TIME) {
-            update_time = MIN_UPDATE_TIME;
-        }
-        update_OHLCV_interval = setInterval(updateOHLCV, update_time * 1000);
-    }
-    */
+    notification_status.data.forEach(function (item) {
+        let data = {};
+        data['symbol'] = item['symbol'];
+        data['openP'] = item['openP'];
+        data['highP'] = item['highP'];
+        data['lowP'] = item['lowP'];
+        data['closeP'] = item['closeP'];
+        data['volume'] = item['volume'];
+        data['changeP'] = item['changeP'];
+        updateOHLCV_UI("notification", data, enable_sync, null);
+    });   
 }
 
 function initStockSetting() {
@@ -143,7 +97,13 @@ function initStockSetting() {
         let symbols = $('#add-symbol-input')[0].value.split(",");
         $('#add-symbol-input')[0].value = "";
         symbols.forEach(function (symbol) {
-            let stock = {
+            notification_setting["data"].data.push({
+                "symbol": symbol,
+                "enable": true,
+                "edit": []
+            });
+
+            notification_status["data"].data.push({
                 "symbol": symbol,
                 "openP": "-",
                 "highP": "-",
@@ -151,16 +111,18 @@ function initStockSetting() {
                 "closeP": "-",
                 "changeP": "0%",
                 "volume": "-",
-                "enable": true,
-                "edit": [{}]
-            };
-            notification_data["data"].data.push(stock);
+                "messages": []
+            });
         })
     })
 
     // set notification item
     $(".item").remove();
-    notification_data.data.forEach(function (item) {
+    let notification_enable_dict = {};
+    notification_setting.data.forEach(function (item) {
+        notification_enable_dict[item.symbol] = item.enable;
+    });
+    notification_status.data.forEach(function (item) {
         var class_name = 'stock_' + item.symbol;
         if ($("." + class_name).length === 0) {
             let temp = notification_container_template.replace('{name}', item.symbol);
@@ -171,7 +133,7 @@ function initStockSetting() {
             temp = temp.replace('{closeP}', item.closeP);
             temp = temp.replace('{changeP}', item.changeP);
             temp = temp.replace('{volume}', item.volume);
-            if (item.enable){
+            if (notification_enable_dict[item.symbol]){
                 temp = temp.replace('{active}', 'active');
             }
             else{
@@ -180,7 +142,7 @@ function initStockSetting() {
 
             $("#list").append(temp);
 
-            setLedStatus(item.symbol, item.enable ? "led-green" : "led-blue");
+            setLedStatus(item.symbol, notification_enable_dict[item.symbol] ? "led-green" : "led-blue");
         }
     });
 
@@ -188,7 +150,7 @@ function initStockSetting() {
         var button = event.target;
         let item_name = $(this).closest('li')[0].className;
         let stock_name = item_name.replace('item stock_','');
-        notification_data.data.forEach(function (item) {
+        notification_setting.data.forEach(function (item) {
             if (item.symbol === stock_name) {
                 item.enable = button.className.indexOf('active') == -1; //in this timing, UI doesn't change yet.
                 if (item.enable) {
