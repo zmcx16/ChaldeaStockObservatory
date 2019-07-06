@@ -50,6 +50,7 @@ ipc.on('doSaveStockData', () => {
 
 ipc.on('syncConfigData', (event, data) => {
   setting_data = data;
+  updateOHLCV();
 });
 
 // OnStart

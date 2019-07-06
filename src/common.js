@@ -218,13 +218,7 @@ function updateOHLCV_UI(window, stock, syncing, update_status) {
     updateCol(stock['symbol'], 'changeP', stock['changeP']);
     updateStockColor($('.item.stock_' + stock['symbol'])[0]);
 
-    let led = "led-blue";
-    if (syncing) {
-        led = "led-green";
-    }
-
-    let d = new Date();
-    $('#last-update-time')[0].innerHTML = '<div class="' + led + '" id="last-update-time-led"></div>' + formatDate(d, "MM/dd") + "&nbsp;&nbsp;&nbsp;" + formatDate(d, "hh:mm:ss");
+    updateSyncLed(syncing);
 
     if (window == "app"){
         update_status[stock['symbol']] = true;
@@ -238,6 +232,17 @@ function updateOHLCV_UI(window, stock, syncing, update_status) {
             $('#update-progress')[0].innerHTML = '100%';
         }
     }
+}
+
+function updateSyncLed(syncing)
+{
+    let led = "led-blue";
+    if (syncing) {
+        led = "led-green";
+    }
+
+    let d = new Date();
+    $('#last-update-time')[0].innerHTML = '<div class="' + led + '" id="last-update-time-led"></div>' + formatDate(d, "MM/dd") + "&nbsp;&nbsp;&nbsp;" + formatDate(d, "hh:mm:ss");
 }
 
 function updateCol(symbol, label, value) {

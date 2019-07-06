@@ -7,6 +7,7 @@ const NotificationDef = require('./notification-def.js');
 var enable_sync = false;
 var notification_setting = {};
 var notification_status = {};
+var notification_interval = null;
 
 // ipc register
 ipc.on('syncNotificationStatus', (event, data) => {
@@ -23,9 +24,16 @@ $(document).ready(function () {
 
     setting_data = ipc.sendSync("loadConfigData");
     notification_setting = ipc.sendSync('getNotificationSetting');
+    notification_status = ipc.sendSync('getNotificationStatus');
+
+    if (Object.keys(notification_setting).length === 0) {
+        notification_setting = {};
+        notification_setting["data"] = [];
+    }
 
     if (Object.keys(notification_status).length === 0) {
         notification_setting.data.forEach(function (item) {
+            notification_status = {};
             notification_status["data"] = [];
             notification_status.data.push({
                 "symbol": item.symbol,
@@ -41,44 +49,12 @@ $(document).ready(function () {
     }
 
     initStockSetting();
-});
 
-// main function
-function setLedStatus(name, led) {
-    $('.stock_' + name + ' .status-tab .led-green').attr('style', 'display: none;');
-    $('.stock_' + name + ' .status-tab .led-blue').attr('style', 'display: none;');
-    $('.stock_' + name + ' .status-tab .led-yellow').attr('style', 'display: none;');
-    $('.stock_' + name + ' .status-tab .'+led).attr('style', 'display: block;');
-}
+    checkEnableSync();
+    notification_interval = setInterval(checkEnableSync, parseInt(setting_data["data"]["sync"]["interval"]) * 1000);
 
-function updateOHLCV() {
-
-    enable_sync = needEnableSync(setting_data['data']['sync']);
-
-    // update UI
-    notification_status.data.forEach(function (item) {
-        let data = {};
-        data['symbol'] = item['symbol'];
-        data['openP'] = item['openP'];
-        data['highP'] = item['highP'];
-        data['lowP'] = item['lowP'];
-        data['closeP'] = item['closeP'];
-        data['volume'] = item['volume'];
-        data['changeP'] = item['changeP'];
-        updateOHLCV_UI("notification", data, enable_sync, null);
-    });   
-}
-
-function initStockSetting() {
-
-    // unbind event
-    $('.btn-toggle').unbind("click");
-    $('#add-button').unbind("click");
-
-    // reset status
     $("#add-popup").hide();
 
-    // register event
     $(document).click(function (event) {
         if (!$(event.target).is("#add-button, #add-popup, #search-bar, #add-symbol-input, #search-icon, .add-popup-text")) {
             $("#add-popup").hide();
@@ -97,24 +73,80 @@ function initStockSetting() {
         let symbols = $('#add-symbol-input')[0].value.split(",");
         $('#add-symbol-input')[0].value = "";
         symbols.forEach(function (symbol) {
-            notification_setting["data"].data.push({
+            notification_setting.data.push({
                 "symbol": symbol,
                 "enable": true,
                 "edit": []
             });
 
-            notification_status["data"].data.push({
-                "symbol": symbol,
-                "openP": "-",
-                "highP": "-",
-                "lowP": "-",
-                "closeP": "-",
-                "changeP": "0%",
-                "volume": "-",
-                "messages": []
-            });
+            addStock(symbol, "-", "-", "-", "-", "0%", "-", true);
         })
+
+        $("#add-popup").hide();
+        ipc.send("saveNotificationSettingAndUpdateStatus", notification_setting);
     })
+});
+
+// main function
+function checkEnableSync()
+{
+    enable_sync = needEnableSync(setting_data['data']['sync']);
+    updateSyncLed(enable_sync);
+}
+
+function setLedStatus(name, led) {
+    $('.stock_' + name + ' .status-tab .led-green').attr('style', 'display: none;');
+    $('.stock_' + name + ' .status-tab .led-blue').attr('style', 'display: none;');
+    $('.stock_' + name + ' .status-tab .led-yellow').attr('style', 'display: none;');
+    $('.stock_' + name + ' .status-tab .'+led).attr('style', 'display: block;');
+}
+
+function updateOHLCV() {
+
+    checkEnableSync();
+
+    // update UI
+    notification_status.data.forEach(function (item) {
+        let data = {};
+        data['symbol'] = item['symbol'];
+        data['openP'] = item['openP'];
+        data['highP'] = item['highP'];
+        data['lowP'] = item['lowP'];
+        data['closeP'] = item['closeP'];
+        data['volume'] = item['volume'];
+        data['changeP'] = item['changeP'];
+        updateOHLCV_UI("notification", data, enable_sync, null);
+    });   
+}
+
+function addStock(symbol, openP, highP, lowP, closeP, changeP, volume, enable){
+    var class_name = 'stock_' + symbol;
+    if ($("." + class_name).length === 0) {
+        let temp = notification_container_template.replace('{name}', symbol);
+        temp = temp.replace('{symbol}', symbol);
+        temp = temp.replace('{openP}', openP);
+        temp = temp.replace('{highP}', highP);
+        temp = temp.replace('{lowP}', lowP);
+        temp = temp.replace('{closeP}', closeP);
+        temp = temp.replace('{changeP}', changeP);
+        temp = temp.replace('{volume}', volume);
+        if (enable) {
+            temp = temp.replace('{active}', 'active');
+        }
+        else {
+            temp = temp.replace('{active}', '');
+        }
+
+        $("#list").append(temp);
+
+        setLedStatus(symbol, enable ? "led-green" : "led-blue");
+    }
+}
+
+function initStockSetting() {
+
+    // unbind event
+    $('.btn-toggle').unbind("click");
 
     // set notification item
     $(".item").remove();
@@ -123,27 +155,7 @@ function initStockSetting() {
         notification_enable_dict[item.symbol] = item.enable;
     });
     notification_status.data.forEach(function (item) {
-        var class_name = 'stock_' + item.symbol;
-        if ($("." + class_name).length === 0) {
-            let temp = notification_container_template.replace('{name}', item.symbol);
-            temp = temp.replace('{symbol}', item.symbol);
-            temp = temp.replace('{openP}', item.openP);
-            temp = temp.replace('{highP}', item.highP);
-            temp = temp.replace('{lowP}', item.lowP);
-            temp = temp.replace('{closeP}', item.closeP);
-            temp = temp.replace('{changeP}', item.changeP);
-            temp = temp.replace('{volume}', item.volume);
-            if (notification_enable_dict[item.symbol]){
-                temp = temp.replace('{active}', 'active');
-            }
-            else{
-                temp = temp.replace('{active}', '');
-            }
-
-            $("#list").append(temp);
-
-            setLedStatus(item.symbol, notification_enable_dict[item.symbol] ? "led-green" : "led-blue");
-        }
+        addStock(item.symbol, item.openP, item.highP, item.lowP, item.closeP, item.changeP, item.volume, notification_enable_dict[item.symbol]); 
     });
 
     $('.btn-toggle').on('click', function (event) {

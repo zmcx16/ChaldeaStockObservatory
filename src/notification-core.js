@@ -10,7 +10,7 @@ var setting_data = {};
 var notification_core_interval = null;
 var port = null;
 var notification_core_event = null;
-
+var force_scan = true;
 
 exports.onStart = function (_notification_setting, _notification_status, _setting_data, _port, _notification_core_event) {
     notification_setting = _notification_setting;
@@ -20,6 +20,7 @@ exports.onStart = function (_notification_setting, _notification_status, _settin
     notification_core_event = _notification_core_event;
 
     client.connect("tcp://127.0.0.1:" + port);
+    doScanNotification();
     notification_core_interval = setInterval(doScanNotification, parseInt(setting_data["data"]["sync"]["interval"]) * 1000);
     console.log("notification-core Initialize.");
 
@@ -29,11 +30,17 @@ exports.syncConfigData = function (_setting_data) {
     setting_data = _setting_data;
 }
 
+exports.syncNotificationSettingAndUpdateStatus = function (_notification_setting) {
+    notification_setting = _notification_setting;
+    force_scan = true;
+    doScanNotification();
+}
+
 
 // private function
 function doScanNotification() {
 
-    if (Common.needEnableSync(setting_data['data']['sync'])){
+    if (force_scan || Common.needEnableSync(setting_data['data']['sync'])){
         sendCmdToCore('scan_notification', notification_setting, (error, res) => {
             if (error) {
                 console.error(error);
@@ -41,6 +48,8 @@ function doScanNotification() {
                 notification_status = res;
                 notification_core_event(notification_status);
             }
+
+            force_scan = false;
         });
     }
 }
