@@ -41,16 +41,27 @@ exports.syncNotificationSettingAndUpdateStatus = function (_notification_setting
 function doScanNotification() {
 
     if (force_scan || Common.needEnableSync(setting_data['data']['sync'])){
-        sendCmdToCore('scan_notification', notification_setting, (error, res) => {
-            if (error) {
-                console.error(error);
-            } else {
-                notification_status = res;
-                notification_core_event(notification_status);
-            }
 
-            force_scan = false;
+        let at_least_one_enable = false;
+        notification_setting.data.some(function (item) {
+            if(item.enable){
+                at_least_one_enable = true;
+                return true;
+            }
         });
+
+        if (at_least_one_enable){
+            sendCmdToCore('scan_notification', notification_setting, (error, res) => {
+                if (error) {
+                    console.error(error);
+                } else {
+                    notification_status = res;
+                    notification_core_event(notification_status);
+                }
+
+                force_scan = false;
+            });
+        }
     }
 }
 

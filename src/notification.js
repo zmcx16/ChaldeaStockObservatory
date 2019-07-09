@@ -173,6 +173,8 @@ function initStockSetting() {
                 }
             }
         });  
+
+        ipc.send("saveNotificationSettingAndUpdateStatus", notification_setting);
     });
 
     updateStocksColor();
