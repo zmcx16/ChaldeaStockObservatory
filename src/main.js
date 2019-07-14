@@ -307,7 +307,10 @@ ipc.on('saveNotificationSettingAndUpdateStatus', (event, target_data) => {
   NotificationCore.syncNotificationSettingAndUpdateStatus(notification_setting);
 });
 
-
+ipc.on('saveNotificationSetting', (event, target_data) => {
+  notification_setting = target_data;
+  saveDataSync(NOTIFICATION_SETTING_FILE_NAME, notification_setting);
+});
 
 
 

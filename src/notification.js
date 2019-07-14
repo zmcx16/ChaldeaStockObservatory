@@ -8,6 +8,7 @@ var enable_sync = false;
 var notification_setting = {};
 var notification_status = {};
 var notification_interval = null;
+var check_dialog_now = '';
 
 // ipc register
 ipc.on('syncNotificationStatus', (event, data) => {
@@ -32,9 +33,9 @@ $(document).ready(function () {
     }
 
     if (Object.keys(notification_status).length === 0) {
+        notification_status = {};
+        notification_status["data"] = [];
         notification_setting.data.forEach(function (item) {
-            notification_status = {};
-            notification_status["data"] = [];
             notification_status.data.push({
                 "symbol": item.symbol,
                 "openP": "-",
@@ -85,6 +86,20 @@ $(document).ready(function () {
         $("#add-popup").hide();
         ipc.send("saveNotificationSettingAndUpdateStatus", notification_setting);
     })
+
+    $('#check-dialog-ok-btn').click(function () {
+        if (check_dialog_now.indexOf('del-stock-')!=-1) {
+            let stock_name = check_dialog_now.replace('del-stock-','');
+            $(".item.stock_" + stock_name).remove();
+            notification_setting.data.forEach(function (item, index, object) {
+                if (item.symbol === stock_name) {
+                    object.splice(index, 1);
+                }
+            });
+            ipc.send("saveNotificationSetting", notification_setting);
+            $(".check-dialog-close").trigger("click");
+        }
+    });
 });
 
 // main function
@@ -141,27 +156,12 @@ function addStock(symbol, openP, highP, lowP, closeP, changeP, volume, enable){
 
         setLedStatus(symbol, enable ? "led-green" : "led-blue");
     }
-}
 
-function initStockSetting() {
-
-    // unbind event
     $('.btn-toggle').unbind("click");
-
-    // set notification item
-    $(".item").remove();
-    let notification_enable_dict = {};
-    notification_setting.data.forEach(function (item) {
-        notification_enable_dict[item.symbol] = item.enable;
-    });
-    notification_status.data.forEach(function (item) {
-        addStock(item.symbol, item.openP, item.highP, item.lowP, item.closeP, item.changeP, item.volume, notification_enable_dict[item.symbol]); 
-    });
-
     $('.btn-toggle').on('click', function (event) {
         var button = event.target;
         let item_name = $(this).closest('li')[0].className;
-        let stock_name = item_name.replace('item stock_','');
+        let stock_name = item_name.replace('item stock_', '');
         notification_setting.data.forEach(function (item) {
             if (item.symbol === stock_name) {
                 item.enable = button.className.indexOf('active') == -1; //in this timing, UI doesn't change yet.
@@ -172,9 +172,31 @@ function initStockSetting() {
                     setLedStatus(item.symbol, "led-blue");
                 }
             }
-        });  
+        });
 
         ipc.send("saveNotificationSettingAndUpdateStatus", notification_setting);
+    });
+
+    $('.close.remove').unbind("click");
+    $('.close.remove').click(function () {
+        let item_name = $(this).closest('li')[0].className;
+        let stock_name = item_name.replace('item stock_', '');
+        check_dialog_now = 'del-stock-' + stock_name;
+        $('#check-dialog-content')[0].innerText = "Are you sure you want to delete '" + stock_name + "'?";
+        $('#check-dialog-hidden-btn').click();
+    });
+}
+
+function initStockSetting() {
+
+    // set notification item
+    $(".item").remove();
+    let notification_enable_dict = {};
+    notification_setting.data.forEach(function (item) {
+        notification_enable_dict[item.symbol] = item.enable;
+    });
+    notification_status.data.forEach(function (item) {
+        addStock(item.symbol, item.openP, item.highP, item.lowP, item.closeP, item.changeP, item.volume, notification_enable_dict[item.symbol]); 
     });
 
     updateStocksColor();
