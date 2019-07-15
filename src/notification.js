@@ -50,7 +50,8 @@ $(document).ready(function () {
     }
 
     initStockSetting();
-
+    dragList();
+    
     checkEnableSync();
     notification_interval = setInterval(checkEnableSync, parseInt(setting_data["data"]["sync"]["interval"]) * 1000);
 
@@ -100,9 +101,48 @@ $(document).ready(function () {
             $(".check-dialog-close").trigger("click");
         }
     });
+
+    $('#reorder-button').click(function () {
+        if ($('#reorder-button').hasClass('reorder-running')) {
+
+            resetReorderButton();
+            let stocks_copy = notification_setting.data.slice();
+            notification_setting.data.length = 0
+            let item_list = $('.item');
+            item_list.each(function (row_index) {
+                let stock_name = $(item_list[row_index]).children('.list-cell.symbol')[0].innerText;
+                stocks_copy.some(function (stock) {
+                    if (stock.symbol === stock_name) {
+                        notification_setting.data.push(stock);
+                        return true;
+                    }else{
+                        return false;
+                    }
+                });
+            });
+
+            initStockSetting();
+            ipc.send("saveNotificationSetting", notification_setting);
+        }
+        else {
+            $('#reorder-button').addClass('reorder-running');
+            $('#reorder-button').text('Reordering');
+            $('.drag-tab').attr('style', 'display: inline-block;');
+            $('.status-tab').attr('style', 'display: none;');
+        }
+
+        return;
+    });
 });
 
 // main function
+function resetReorderButton() {
+    $('#reorder-button').removeClass('reorder-running');
+    $('#reorder-button').text('Reorder');
+    $('.drag-tab').attr('style', 'display: none;');
+    $('.status-tab').attr('style', 'display: inline-block;');
+}
+
 function checkEnableSync()
 {
     enable_sync = needEnableSync(setting_data['data']['sync']);
@@ -191,15 +231,22 @@ function initStockSetting() {
 
     // set notification item
     $(".item").remove();
-    let notification_enable_dict = {};
-    notification_setting.data.forEach(function (item) {
-        notification_enable_dict[item.symbol] = item.enable;
-    });
-    notification_status.data.forEach(function (item) {
-        addStock(item.symbol, item.openP, item.highP, item.lowP, item.closeP, item.changeP, item.volume, notification_enable_dict[item.symbol]); 
-    });
 
+    notification_setting.data.forEach(function (setting_item) {
+        notification_status.data.some(function (status_item) {
+            if (setting_item.symbol === status_item.symbol) {
+                addStock(status_item.symbol, status_item.openP, status_item.highP, status_item.lowP, status_item.closeP, status_item.changeP, status_item.volume, setting_item.enable);
+                return true;
+            }
+            else{
+                return false;
+            }
+        });
+    });
+    
     updateStocksColor();
+
+    resetReorderButton();
 }
 
 
