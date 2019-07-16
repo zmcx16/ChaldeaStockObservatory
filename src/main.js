@@ -232,22 +232,7 @@ ipc.on('navToWebsite', (event, link) => {
 });
 
 ipc.on('openNotificationWindow', () => {
-  if (!notifyWindow) {
-    console.log('open Notification Window');
-    notifyWindow = new BrowserWindow({
-      icon: path.join(__dirname, 'ChaldeaStockObservatory.png'),
-      webPreferences: {
-        nodeIntegration: true
-      },
-      width: 900, height: 600
-    });
-
-    notifyWindow.loadURL(`file://${__dirname}/notification.html`);
-
-    notifyWindow.on('closed', () => {
-      notifyWindow = null
-    })
-  }
+  openNotificationWindow();
 });
 
 ipc.on('openSettingWindow', () => {
@@ -322,7 +307,14 @@ function triggerTrayCmd(param) {
       if (mainWindow.isMinimized() || !mainWindow.isVisible()) {
         mainWindow.show();
       } else {
-        mainWindow.minimize();
+        mainWindow.close();
+      }
+      break; 
+    case 'NOTIFICATION':
+      if (notifyWindow) {
+        notifyWindow.show();
+      } else {
+        openNotificationWindow();
       }
       break;
     case 'EXIT':
@@ -364,6 +356,24 @@ function loadDataSync(file_name) {
   return output;
 }
 
+function openNotificationWindow(){
+  if (!notifyWindow) {
+    console.log('open Notification Window');
+    notifyWindow = new BrowserWindow({
+      icon: path.join(__dirname, 'ChaldeaStockObservatory.png'),
+      webPreferences: {
+        nodeIntegration: true
+      },
+      width: 900, height: 600
+    });
+
+    notifyWindow.loadURL(`file://${__dirname}/notification.html`);
+
+    notifyWindow.on('closed', () => {
+      notifyWindow = null
+    })
+  }
+}
 
 // Notification-Core event
 function NotificationCoreEvent(_notification_status){

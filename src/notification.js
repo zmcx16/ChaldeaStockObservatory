@@ -8,7 +8,7 @@ var enable_sync = false;
 var notification_setting = {};
 var notification_status = {};
 var notification_interval = null;
-var check_dialog_now = '';
+var dialog_now = '';
 
 // ipc register
 ipc.on('syncNotificationStatus', (event, data) => {
@@ -89,8 +89,8 @@ $(document).ready(function () {
     })
 
     $('#check-dialog-ok-btn').click(function () {
-        if (check_dialog_now.indexOf('del-stock-')!=-1) {
-            let stock_name = check_dialog_now.replace('del-stock-','');
+        if (dialog_now.indexOf('del-stock-')!=-1) {
+            let stock_name = dialog_now.replace('del-stock-','');
             $(".item.stock_" + stock_name).remove();
             notification_setting.data.forEach(function (item, index, object) {
                 if (item.symbol === stock_name) {
@@ -98,6 +98,8 @@ $(document).ready(function () {
                 }
             });
             ipc.send("saveNotificationSetting", notification_setting);
+            $(".check-dialog-close").trigger("click");
+        } else if (dialog_now.indexOf('edit-stock-') != -1){
             $(".check-dialog-close").trigger("click");
         }
     });
@@ -221,9 +223,18 @@ function addStock(symbol, openP, highP, lowP, closeP, changeP, volume, enable){
     $('.close.remove').click(function () {
         let item_name = $(this).closest('li')[0].className;
         let stock_name = item_name.replace('item stock_', '');
-        check_dialog_now = 'del-stock-' + stock_name;
-        $('#check-dialog-content')[0].innerText = "Are you sure you want to delete '" + stock_name + "'?";
+        dialog_now = 'del-stock-' + stock_name;
+        $('#check-dialog-title')[0].innerText = "Are you sure you want to delete '" + stock_name + "'?";
         $('#check-dialog-hidden-btn').click();
+    });
+
+    $('.edit-btn').unbind("click");
+    $('.edit-btn').click(function () {
+        let item_name = $(this).closest('li')[0].className;
+        let stock_name = item_name.replace('item stock_', '');
+        dialog_now = 'edit-stock-' + stock_name;
+        $('#edit-dialog-title')[0].innerText = "Edit '" + stock_name + "' Notification Conditions";
+        $('#edit-dialog-hidden-btn').click();
     });
 }
 
@@ -243,7 +254,7 @@ function initStockSetting() {
             }
         });
     });
-    
+
     updateStocksColor();
 
     resetReorderButton();

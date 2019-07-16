@@ -291,6 +291,8 @@ function updateOHLCV(){
     });
 
     force_update = false;
+  }else{
+    updateSyncLed(false);
   }
 
   clearInterval(update_OHLCV_interval);
