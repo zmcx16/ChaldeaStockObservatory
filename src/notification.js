@@ -135,6 +135,11 @@ $(document).ready(function () {
 
         return;
     });
+
+    $(".dropdown-menu.edit a").click(function () {
+        $("#edit-dropdown-btn").text($(this).text());
+        $("#edit-dropdown-btn").attr("value", "test");
+    });
 });
 
 // main function

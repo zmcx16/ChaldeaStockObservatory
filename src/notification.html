@@ -56,7 +56,7 @@
     <div id="edit-dialog-hidden-btn" style="display:none;" data-toggle="modal" data-target="#edit-dialog"></div>
     <div id="edit-dialog" class="modal inmodal fade" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static"
       data-keyboard="true">
-      <div class="modal-dialog modal-lg">
+      <div class="modal-dialog modal-lg modal-edit">
         <div class="modal-content">
           <div class="modal-header">
             <div class="modal-title" id="edit-dialog-title"></div>
@@ -66,7 +66,30 @@
             </button>
           </div>
           <div class="modal-body">
-            <input type="text" id="edit-dialog-text" name="edit-dialog-text-name">
+            <div class="modal-body edit-container">
+              <div class="edit-menu">
+                <div class="dropdown edit-dropdown">
+                  <button class="btn btn-primary dropdown-toggle" type="button" id="edit-dropdown-btn" data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false">
+                    Conditions
+                  </button>
+                  <div class="dropdown-menu edit" aria-labelledby="dropdownMenuButton">
+                    <a class="dropdown-item" href="#">Action</a>
+                    <a class="dropdown-item" href="#">Another action</a>
+                    <a class="dropdown-item" href="#">Something else here</a>
+                  </div>
+                </div>
+                <div class="edit-args">
+                  yyy
+                </div>
+                <button class="btn anime-btn ok-cancel-btn" id="edit-add-btn">Add</button>
+                <button class="btn anime-btn ok-cancel-btn" id="edit-clear-btn">Clear</button>
+              </div>
+              <div></div>
+              <div class="edit-values">
+                yyy
+              </div>
+            </div>
           </div>
           <div class="modal-footer">
             <button class="btn anime-btn ok-cancel-btn" id="edit-dialog-ok-btn">OK</button>
