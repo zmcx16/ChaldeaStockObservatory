@@ -242,7 +242,11 @@ function updateSyncLed(syncing)
     }
 
     let d = new Date();
-    $('#last-update-time')[0].innerHTML = '<div class="' + led + '" id="last-update-time-led"></div>' + formatDate(d, "MM/dd") + "&nbsp;&nbsp;&nbsp;" + formatDate(d, "hh:mm:ss");
+    if (syncing || $('#last-update-time')[0].innerHTML == "") {
+        $('#last-update-time')[0].innerHTML = '<div class="' + led + '" id="last-update-time-led"></div>' + formatDate(d, "MM/dd") + "&nbsp;&nbsp;&nbsp;" + formatDate(d, "hh:mm:ss");
+    }else{
+        $('#last-update-time')[0].innerHTML = $('#last-update-time')[0].innerHTML.replace('led-green','led-blue');
+    }
 }
 
 function updateCol(symbol, label, value) {

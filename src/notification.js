@@ -51,6 +51,7 @@ $(document).ready(function () {
 
     initStockSetting();
     dragList();
+    setEditMenu();
     
     checkEnableSync();
     notification_interval = setInterval(checkEnableSync, parseInt(setting_data["data"]["sync"]["interval"]) * 1000);
@@ -138,7 +139,8 @@ $(document).ready(function () {
 
     $(".dropdown-menu.edit a").click(function () {
         $("#edit-dropdown-btn").text($(this).text());
-        $("#edit-dropdown-btn").attr("value", "test");
+        $("#edit-dropdown-btn").attr("key", $(this).attr("key"));
+        setEditArgs();
     });
 });
 
@@ -265,6 +267,30 @@ function initStockSetting() {
     resetReorderButton();
 }
 
+function setEditMenu(){
+
+    $(".dropdown-menu.edit")[0].innerHTML = '';
+
+    let set_init = false
+    Object.entries(NotificationDef.NOTIFICATION_TABLE.KEY_CONDITIONS).forEach(([key, value]) => {
+        
+        $(".dropdown-menu.edit")[0].innerHTML += '<a class="dropdown-item" href="#" key="' + key + '" >' + value.KEY_DISPLAY_NAME + '</a>';
+        if (!set_init){
+            $("#edit-dropdown-btn").text(value.KEY_DISPLAY_NAME);
+            $("#edit-dropdown-btn").attr("key", key);
+            set_init = true;
+        }
+    });
+
+    setEditArgs();
+}
+
+function setEditArgs(){
+
+    let now_condition = $("#edit-dropdown-btn").attr("key");
+
+
+}
 
 /* template data */
 const notification_container_template = `

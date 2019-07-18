@@ -86,3 +86,16 @@ button:focus {
   right: 26px;
   padding: 0px;
 }
+
+.btn-secondary2 {
+  color: #292b2c;
+  background-color: #fff;
+  border-color: #ccc;
+}
+
+.btn-secondary2.active, .btn-secondary2:active, .show>.btn-secondary2.dropdown-toggle {
+    color: #292b2c;
+    background-color: #e6e6e6;
+    background-image: none;
+    border-color: #adadad;
+}

@@ -24,7 +24,6 @@ const child_process = require('child_process');
 const detect_port = require('detect-port');
 
 // import
-const NotificationDef = require('./notification-def.js');
 const NotificationCore = require('./notification-core.js');
 
 let appIcon = null;
