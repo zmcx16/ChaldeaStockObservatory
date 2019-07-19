@@ -363,7 +363,7 @@ function openNotificationWindow(){
       webPreferences: {
         nodeIntegration: true
       },
-      width: 900, height: 600
+      width: 900, height: 650
     });
 
     notifyWindow.loadURL(`file://${__dirname}/notification.html`);

@@ -112,13 +112,13 @@ ul {
 }
 
 .modal-dialog.modal-edit{
-  max-width: 800px;
+  max-width: 700px;
 }
 
 .edit-container{
   display: grid;
-  grid-template-columns: 1fr 30px 1fr;
-  height: 320px;
+  grid-template-columns: 45% 10% 45%;;
+  height: 375px;
 }
 
 .edit-menu, .edit-values{
@@ -131,11 +131,23 @@ ul {
 
 .edit-args{
   margin: 10px;
-  height: 160px;
+  height: 215px;
   border: #292929 1px solid;
+
+}
+
+.arg-label-text{
+  grid-template-columns: 50% 50%;
+  display: grid;
+  padding: 10px 15px;
+}
+
+.edit-menu-footer{
+  display: flex;
+  justify-content: flex-end;
+  padding: 5px 10px;
 }
 
 #edit-add-btn{
-  margin-left: 10px;
-  margin: 0 20px 0 155px;
+  margin: 0 10px;
 }
