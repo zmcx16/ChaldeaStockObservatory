@@ -142,6 +142,59 @@ $(document).ready(function () {
         $("#edit-dropdown-btn").attr("key", $(this).attr("key"));
         setEditArgs();
     });
+
+    $("#edit-clear-btn").click(function () {
+        $(".arg-text-val").val('');
+    });
+
+    $("#edit-add-btn").click(function () {
+        let stock_name = dialog_now.replace('edit-stock-','');
+        let args = {};
+        $(".arg-text-val").each(function () {
+            if ($(this).val() != '')
+                args[$(this).attr('id')] = $(this).val();
+        });
+
+        if (NotificationDef.NAME in args && Object.keys(args).length > 1){
+            notification_setting.data.some(function (item) {
+                if (item.symbol == stock_name){
+                    let name_invalid = false;
+                    item.edit.some(function (edit_o) {
+                        if (edit_o["name"] == args[NotificationDef.NAME]){
+                            name_invalid = true;
+                            return true;
+                        }
+                        return false;
+                    });
+
+                    if(name_invalid){
+                        setEditDialogTitle('The name "' + args[NotificationDef.NAME] + '" is already exists.', 'red');
+                        return true;
+                    }
+
+                    let new_arg = {};
+                    new_arg['name'] = args[NotificationDef.NAME];
+                    new_arg['type'] = $("#edit-dropdown-btn").attr("key");
+                    new_arg['args'] = {};
+                    Object.entries(args).forEach(([key, value]) => {
+                        if (key != NotificationDef.NAME){
+                            new_arg['args'][key] = value;
+                        }
+                    });
+                    item.edit.push(new_arg);
+                    ipc.send("saveNotificationSettingAndUpdateStatus", notification_setting);
+                    initEditValues();
+                    return true;
+                }
+
+                return false;
+            });
+        }
+        else{
+            setEditDialogTitle("Must input Name and at least one parameter.", 'red');
+        }
+
+    });
 });
 
 // main function
@@ -226,8 +279,8 @@ function addStock(symbol, openP, highP, lowP, closeP, changeP, volume, enable){
         ipc.send("saveNotificationSettingAndUpdateStatus", notification_setting);
     });
 
-    $('.close.remove').unbind("click");
-    $('.close.remove').click(function () {
+    $('.close.remove-stock').unbind("click");
+    $('.close.remove-stock').click(function () {
         let item_name = $(this).closest('li')[0].className;
         let stock_name = item_name.replace('item stock_', '');
         dialog_now = 'del-stock-' + stock_name;
@@ -240,7 +293,8 @@ function addStock(symbol, openP, highP, lowP, closeP, changeP, volume, enable){
         let item_name = $(this).closest('li')[0].className;
         let stock_name = item_name.replace('item stock_', '');
         dialog_now = 'edit-stock-' + stock_name;
-        $('#edit-dialog-title')[0].innerText = "Edit '" + stock_name + "' Notification Conditions";
+        setEditDialogTitle("Edit '" + stock_name + "' Notification Conditions", 'black');
+        initEditValues();
         $('#edit-dialog-hidden-btn').click();
     });
 }
@@ -288,7 +342,97 @@ function setEditMenu(){
 function setEditArgs(){
 
     let now_condition = $("#edit-dropdown-btn").attr("key");
+    $(".edit-args")[0].innerHTML = '<div class="arg-label-text"><div class="label-input">' + NotificationDef.NAME_DISPLAY + ":" + '</div><input type="text" class="arg-text-val" id="' + NotificationDef.NAME + '" /></div>';
+    NotificationDef.NOTIFICATION_TABLE.KEY_CONDITIONS[now_condition].KEY_VALUE.forEach(function (arg) {
+        $(".edit-args")[0].innerHTML += '<div class="arg-label-text"><div class="label-input">' + arg.KEY_DISPLAY_NAME + ":" + '</div><input type="text" class="arg-text-val" id="' + arg.KEY_NAME + '" /></div>';
+    });
+}
 
+function setEditDialogTitle(content, color){
+    $('#edit-dialog-title').attr('style', 'color:' + color);
+    $('#edit-dialog-title')[0].innerText = content;
+}
+
+function initEditValues(){
+    let stock_name = dialog_now.replace('edit-stock-', '');
+
+    $('.edit-values')[0].innerHTML = '';
+    notification_setting.data.some(function (item) {
+        if (item.symbol === stock_name) {
+            item.edit.forEach(function (edit_o) {
+                $('.edit-values')[0].innerHTML += '<div class="edit-value">'
+                + '<div class="edit-led led-green"></div>'
+                + '<div class="edit-name">' + edit_o["name"]+'</div>'
+                + '<span class="edit-remove remove"><button type="button" class="close remove-edit"><span>&times;</span></button></span>'
+                + '</div>';
+            });
+            return true;
+        }
+
+        return false;
+    });
+
+    $('.close.remove-edit').unbind("click");
+    $('.close.remove-edit').click(function () {
+        event.preventDefault();
+        event.stopPropagation();
+        let stock_name = dialog_now.replace('edit-stock-', '');
+        let value_name = $(this).closest('div').children('.edit-name')[0].innerText;
+        notification_setting.data.some(function (item) {
+            if (item.symbol == stock_name) {
+                item.edit.some(function (edit_o, index, object) {
+                    if (edit_o["name"] === value_name) {
+                        object.splice(index, 1);
+                        return true;
+                    }
+                    return false;
+                });
+
+                return true;
+            }
+            return false;
+        });
+
+        ipc.send("saveNotificationSetting", notification_setting);
+        initEditValues();
+    });
+
+    $('.edit-value').unbind("click");
+    $('.edit-value').click(function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (!$(event.target).is(".edit-remove, .close.remove-edit")) {
+            let value_name = $(this).children('.edit-name')[0].innerText;
+            displayEditValue(value_name);
+        }
+    });
+}
+
+function displayEditValue(value_name){
+
+    let stock_name = dialog_now.replace('edit-stock-', '');
+    notification_setting.data.some(function (item) {
+        if (item.symbol == stock_name) {
+            item.edit.some(function (edit_o) {
+                if (edit_o["name"] === value_name) {
+                    $(".dropdown-item[key='" + edit_o["type"] + "']").click();
+                    $("#" + NotificationDef.NAME).val(value_name);
+                    Object.entries(edit_o["args"]).forEach(([key, value]) => {
+                        $("#" + key).val(value);
+                    });
+              
+                    return true;
+                }
+                return false;
+            });
+
+            return true;
+        }
+        return false;
+    });
+    
+    
+    //$(".dropdown-menu.edit[key='Hot Fuzz']").click();
 
 }
 
@@ -318,6 +462,6 @@ const notification_container_template = `
             <div class="handle"></div>
         </button>
     </div>
-    <span class="list-cell remove"><button type="button" class="close remove"><span>&times;</span></button></span>
+    <span class="list-cell remove"><button type="button" class="close remove-stock"><span>&times;</span></button></span>
 </li>
 `;
