@@ -6,6 +6,7 @@ const NotificationDef = require('./notification-def.js');
 // var
 var enable_sync = false;
 var notification_setting = {};
+var notification_setting_editing = {};
 var notification_status = {};
 var notification_interval = null;
 var dialog_now = '';
@@ -100,8 +101,14 @@ $(document).ready(function () {
             });
             ipc.send("saveNotificationSetting", notification_setting);
             $(".check-dialog-close").trigger("click");
-        } else if (dialog_now.indexOf('edit-stock-') != -1){
-            $(".check-dialog-close").trigger("click");
+        }
+    });
+
+    $('#edit-dialog-ok-btn').click(function () {
+        if (dialog_now.indexOf('edit-stock-') != -1) {
+            notification_setting = JSON.parse(JSON.stringify(notification_setting_editing));
+            ipc.send("saveNotificationSettingAndUpdateStatus", notification_setting);
+            $(".edit-dialog-close").trigger("click");
         }
     });
 
@@ -156,7 +163,7 @@ $(document).ready(function () {
         });
 
         if (NotificationDef.NAME in args && Object.keys(args).length > 1){
-            notification_setting.data.some(function (item) {
+            notification_setting_editing.data.some(function (item) {
                 if (item.symbol == stock_name){
                     let name_invalid = false;
                     item.edit.some(function (edit_o) {
@@ -182,7 +189,6 @@ $(document).ready(function () {
                         }
                     });
                     item.edit.push(new_arg);
-                    ipc.send("saveNotificationSettingAndUpdateStatus", notification_setting);
                     initEditValues();
                     return true;
                 }
@@ -293,6 +299,7 @@ function addStock(symbol, openP, highP, lowP, closeP, changeP, volume, enable){
         let item_name = $(this).closest('li')[0].className;
         let stock_name = item_name.replace('item stock_', '');
         dialog_now = 'edit-stock-' + stock_name;
+        notification_setting_editing = JSON.parse(JSON.stringify(notification_setting));
         setEditDialogTitle("Edit '" + stock_name + "' Notification Conditions", 'black');
         initEditValues();
         $('#edit-dialog-hidden-btn').click();
@@ -357,7 +364,7 @@ function initEditValues(){
     let stock_name = dialog_now.replace('edit-stock-', '');
 
     $('.edit-values')[0].innerHTML = '';
-    notification_setting.data.some(function (item) {
+    notification_setting_editing.data.some(function (item) {
         if (item.symbol === stock_name) {
             item.edit.forEach(function (edit_o) {
                 $('.edit-values')[0].innerHTML += '<div class="edit-value">'
@@ -378,7 +385,7 @@ function initEditValues(){
         event.stopPropagation();
         let stock_name = dialog_now.replace('edit-stock-', '');
         let value_name = $(this).closest('div').children('.edit-name')[0].innerText;
-        notification_setting.data.some(function (item) {
+        notification_setting_editing.data.some(function (item) {
             if (item.symbol == stock_name) {
                 item.edit.some(function (edit_o, index, object) {
                     if (edit_o["name"] === value_name) {
@@ -393,7 +400,6 @@ function initEditValues(){
             return false;
         });
 
-        ipc.send("saveNotificationSetting", notification_setting);
         initEditValues();
     });
 
@@ -411,7 +417,7 @@ function initEditValues(){
 function displayEditValue(value_name){
 
     let stock_name = dialog_now.replace('edit-stock-', '');
-    notification_setting.data.some(function (item) {
+    notification_setting_editing.data.some(function (item) {
         if (item.symbol == stock_name) {
             item.edit.some(function (edit_o) {
                 if (edit_o["name"] === value_name) {
