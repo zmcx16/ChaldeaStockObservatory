@@ -14,6 +14,27 @@ var dialog_now = '';
 // ipc register
 ipc.on('syncNotificationStatus', (event, data) => {
     notification_status = data;
+
+    let notification_status_trigger = {};
+    notification_status.data.forEach(function (item) {
+        if (item.messages.length > 0)
+            notification_status_trigger[item.symbol] = true;
+    });
+    
+    notification_setting.data.forEach(function (item) {    
+        if (item.enable) {
+            if (item.symbol in notification_status_trigger) {
+                setLedStatus(item.symbol, "led-yellow");
+            }
+            else{
+                setLedStatus(item.symbol, "led-green");
+            }
+        }
+        else {
+            setLedStatus(item.symbol, "led-blue");
+        }     
+    });
+
     updateOHLCV();
 });
 
@@ -243,6 +264,13 @@ function updateOHLCV() {
 }
 
 function addStock(symbol, openP, highP, lowP, closeP, changeP, volume, enable){
+
+    let notification_status_trigger = {};
+    notification_status.data.forEach(function (item) {
+        if (item.messages.length > 0)
+            notification_status_trigger[item.symbol] = true;
+    });
+
     var class_name = 'stock_' + symbol;
     if ($("." + class_name).length === 0) {
         let temp = notification_container_template.replace('{name}', symbol);
@@ -262,7 +290,17 @@ function addStock(symbol, openP, highP, lowP, closeP, changeP, volume, enable){
 
         $("#list").append(temp);
 
-        setLedStatus(symbol, enable ? "led-green" : "led-blue");
+        if (enable) {
+            if (symbol in notification_status_trigger) {
+                setLedStatus(symbol, "led-yellow");
+            }
+            else {
+                setLedStatus(symbol, "led-green");
+            }
+        }
+        else {
+            setLedStatus(symbol, "led-blue");
+        }
     }
 
     $('.btn-toggle').unbind("click");
@@ -349,9 +387,9 @@ function setEditMenu(){
 function setEditArgs(){
 
     let now_condition = $("#edit-dropdown-btn").attr("key");
-    $(".edit-args")[0].innerHTML = '<div class="arg-label-text"><div class="label-input">' + NotificationDef.NAME_DISPLAY + ":" + '</div><input type="text" class="arg-text-val" id="' + NotificationDef.NAME + '" /></div>';
+    $(".edit-args")[0].innerHTML = '<div class="arg-label-text"><div class="label-input">' + NotificationDef.NAME_DISPLAY + ":" + '</div><input type="text" class="arg-text-val name" id="' + NotificationDef.NAME + '" /></div>';
     NotificationDef.NOTIFICATION_TABLE.KEY_CONDITIONS[now_condition].KEY_VALUE.forEach(function (arg) {
-        $(".edit-args")[0].innerHTML += '<div class="arg-label-text"><div class="label-input">' + arg.KEY_DISPLAY_NAME + ":" + '</div><input type="text" class="arg-text-val" id="' + arg.KEY_NAME + '" /></div>';
+        $(".edit-args")[0].innerHTML += '<div class="arg-label-text"><div class="label-input value">' + arg.KEY_DISPLAY_NAME + ":" + '</div><input type="text" class="arg-text-val" id="' + arg.KEY_NAME + '" /></div>';
     });
 }
 
@@ -363,12 +401,26 @@ function setEditDialogTitle(content, color){
 function initEditValues(){
     let stock_name = dialog_now.replace('edit-stock-', '');
 
+    let notification_status_trigger = {};
+    notification_status.data.forEach(function (item) {
+        if (item.messages.length > 0){
+            notification_status_trigger[item.symbol] = {};
+            item.messages.forEach(function (message) {
+                notification_status_trigger[item.symbol][message['name']] = message['trigger'];
+            });
+        }
+    });
+
     $('.edit-values')[0].innerHTML = '';
     notification_setting_editing.data.some(function (item) {
         if (item.symbol === stock_name) {
             item.edit.forEach(function (edit_o) {
+                let led = "led-green";
+                if (item.symbol in notification_status_trigger && edit_o["name"] in notification_status_trigger[item.symbol])
+                    led = "led-yellow";
+
                 $('.edit-values')[0].innerHTML += '<div class="edit-value">'
-                + '<div class="edit-led led-green"></div>'
+                    + '<div class="edit-led ' + led + '"></div>'
                 + '<div class="edit-name">' + edit_o["name"]+'</div>'
                 + '<span class="edit-remove remove"><button type="button" class="close remove-edit"><span>&times;</span></button></span>'
                 + '</div>';

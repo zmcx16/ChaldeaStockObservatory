@@ -54,9 +54,17 @@ ipc.on('syncConfigData', (event, data) => {
   updateOHLCV();
 });
 
+ipc.on('notificationTrigger', (event, trigger) => {
+  if (trigger){
+    $("#notifications-icon-img-color").attr("style", "animation: flash 2s ease infinite;");
+  }
+  else{
+    $("#notifications-icon-img-color").attr("style", "animation: none;");
+  }
+});
+
 // OnStart
 $(document).ready(function () {
-
   stock_data = ipc.sendSync('loadStockData');
 
   if (Object.keys(stock_data).length === 0){

@@ -377,8 +377,21 @@ function openNotificationWindow(){
 // Notification-Core event
 function NotificationCoreEvent(_notification_status){
   notification_status = _notification_status;
-  console.log(notification_status);
+  //console.log(notification_status);
   if (notifyWindow) {
     notifyWindow.webContents.send('syncNotificationStatus', notification_status);
+  }
+
+  if (mainWindow){
+    let trigger = false;
+    notification_status.data.some(function (item) {
+      if (item.messages.length > 0){
+        trigger = true;
+        return true;
+      }
+      return false;
+    });
+
+    mainWindow.webContents.send('notificationTrigger', trigger);
   }
 }

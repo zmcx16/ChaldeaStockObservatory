@@ -2,6 +2,11 @@ button:focus {
   outline: 0 !important;
 }
 
+@keyframes flash {
+	0%,100%,50%{opacity:1}
+	25%,75%{opacity:0}
+}
+
 .click-btn-v1, .click-btn-v2 {
   display: inline-block;
   cursor: pointer;
