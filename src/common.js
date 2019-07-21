@@ -208,7 +208,7 @@ function needEnableSync(sync_data) {
     }
 }
 
-function updateOHLCV_UI(stock, syncing, update_status) {
+function updateOHLCV_UI(window, stock, syncing, update_status) {
 
     updateCol(stock['symbol'], 'openP', stock['openP']);
     updateCol(stock['symbol'], 'highP', stock['highP']);
@@ -218,24 +218,35 @@ function updateOHLCV_UI(stock, syncing, update_status) {
     updateCol(stock['symbol'], 'changeP', stock['changeP']);
     updateStockColor($('.item.stock_' + stock['symbol'])[0]);
 
-    update_status[stock['symbol']] = true;
-    let update_cnt = Object.keys(update_status).length;
-    let total_num = $('.item').length;
-    if ($('#update-progress').length && update_cnt < total_num) {
-        $('#update-progress')[0].style.width = (update_cnt * 100 / total_num).toString() + '%';
-        $('#update-progress')[0].innerHTML = (Math.round(update_cnt * 100 / total_num)).toString() + '%';
-    } else {
-        $('#update-progress')[0].style.width = '100%';
-        $('#update-progress')[0].innerHTML = '100%';
-    }
+    updateSyncLed(syncing);
 
+    if (window == "app"){
+        update_status[stock['symbol']] = true;
+        let update_cnt = Object.keys(update_status).length;
+        let total_num = $('.item').length;
+        if ($('#update-progress').length && update_cnt < total_num) {
+            $('#update-progress')[0].style.width = (update_cnt * 100 / total_num).toString() + '%';
+            $('#update-progress')[0].innerHTML = (Math.round(update_cnt * 100 / total_num)).toString() + '%';
+        } else {
+            $('#update-progress')[0].style.width = '100%';
+            $('#update-progress')[0].innerHTML = '100%';
+        }
+    }
+}
+
+function updateSyncLed(syncing)
+{
     let led = "led-blue";
     if (syncing) {
         led = "led-green";
     }
 
     let d = new Date();
-    $('#last-update-time')[0].innerHTML = '<div class="' + led + '" id="last-update-time-led"></div>' + formatDate(d, "MM/dd") + "&nbsp;&nbsp;&nbsp;" + formatDate(d, "hh:mm:ss");
+    if (syncing || $('#last-update-time')[0].innerHTML == "") {
+        $('#last-update-time')[0].innerHTML = '<div class="' + led + '" id="last-update-time-led"></div>' + formatDate(d, "MM/dd") + "&nbsp;&nbsp;&nbsp;" + formatDate(d, "hh:mm:ss");
+    }else{
+        $('#last-update-time')[0].innerHTML = $('#last-update-time')[0].innerHTML.replace('led-green','led-blue');
+    }
 }
 
 function updateCol(symbol, label, value) {
@@ -254,7 +265,6 @@ function updateStocksColor() {
 }
 
 function updateStockColor(target) {
-
     let change = $(target).children('.list-cell.changeP');
     let sign = Math.sign(parseFloat($(change[0])[0].innerText));
     if (sign === 1) {
@@ -265,3 +275,8 @@ function updateStockColor(target) {
         $(change[0]).attr('style', 'color:black;');
     }
 }
+
+
+module.exports = {
+    needEnableSync: needEnableSync
+};

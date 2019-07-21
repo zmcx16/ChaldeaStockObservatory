@@ -4,7 +4,7 @@
 // def
 const USER_DATA = 'user_data';
 const STOCK_DATA_FILE_NAME = 'stock_data.json';
-const NOTIFICATION_DATA_FILE_NAME = 'notification_data.json';
+const NOTIFICATION_SETTING_FILE_NAME = 'notification_setting.json';
 const CONFIG_FILE_NAME = 'config.json';
 
 // module
@@ -24,7 +24,6 @@ const child_process = require('child_process');
 const detect_port = require('detect-port');
 
 // import
-const NotificationDef = require('./notification-def.js');
 const NotificationCore = require('./notification-core.js');
 
 let appIcon = null;
@@ -41,45 +40,8 @@ var user_data_path = '';
 var setting_data = {};
 
 // notification
-var notification_setting = {
-  "data": [
-    {
-      "symbol": "INTC",
-      "enable": true,
-      "edit": [
-        {
-          "name": "C1",
-          "type": "ArrivalPrice",
-          "args":{
-              "GreaterThan": 49,
-              "LessThan": 35
-          }
-        }
-      ]
-    }
-  ]
-}
-
-var notification_status = {
-}
-/*
-  "data": [
-    {
-      "symbol": "INTC",
-      "openP": "45.83",
-      "highP": "46.42",
-      "lowP": "45.55",
-      "closeP": "46.19",
-      "changeP": "1.95%",
-      "volume": "15.38M",
-      "messages":[
-        {
-          "name": "C1",
-          "trigger": "true" 
-        }
-      ]
-    }]
-*/
+var notification_setting = {};
+var notification_status = {};
 
 const tray_list = [
   {
@@ -169,6 +131,13 @@ app.on('ready', () => {
     }
   }
 
+  notification_setting = loadDataSync(NOTIFICATION_SETTING_FILE_NAME);
+  if (Object.keys(notification_setting).length === 0) {
+    notification_setting = {
+      "data": []
+    }
+  }
+
   // render process
   mainWindow = new BrowserWindow({
 
@@ -243,7 +212,6 @@ app.on('will-quit', () => {
 
 // ipc register
 ipc.on('getPort', (event) => {
-  console.log('get port: ' + port);
   event.sender.send('getPort_callback', port);
 });
 
@@ -263,22 +231,7 @@ ipc.on('navToWebsite', (event, link) => {
 });
 
 ipc.on('openNotificationWindow', () => {
-  if (!notifyWindow) {
-    console.log('open Notification Window');
-    notifyWindow = new BrowserWindow({
-      icon: path.join(__dirname, 'ChaldeaStockObservatory.png'),
-      webPreferences: {
-        nodeIntegration: true
-      },
-      width: 900, height: 600
-    });
-
-    notifyWindow.loadURL(`file://${__dirname}/notification.html`);
-
-    notifyWindow.on('closed', () => {
-      notifyWindow = null
-    })
-  }
+  openNotificationWindow();
 });
 
 ipc.on('openSettingWindow', () => {
@@ -314,9 +267,36 @@ ipc.on('loadConfigData', (event) => {
 
 ipc.on('saveConfigData', (event, target_data) => {
   setting_data = target_data;
-  saveDataSync(CONFIG_FILE_NAME, target_data);
+  saveDataSync(CONFIG_FILE_NAME, setting_data);
   mainWindow.webContents.send('syncConfigData', setting_data);
+
+  NotificationCore.syncConfigData(setting_data);
+  if (notifyWindow) {
+    notifyWindow.webContents.send('syncConfigData', setting_data);
+  }
 });
+
+// notification ipc
+ipc.on('getNotificationSetting', (event) => {
+  event.returnValue = notification_setting;
+});
+
+ipc.on('getNotificationStatus', (event) => {
+  event.returnValue = notification_status;
+});
+
+ipc.on('saveNotificationSettingAndUpdateStatus', (event, target_data) => {
+  notification_setting = target_data;
+  saveDataSync(NOTIFICATION_SETTING_FILE_NAME, notification_setting);
+  NotificationCore.syncNotificationSettingAndUpdateStatus(notification_setting);
+});
+
+ipc.on('saveNotificationSetting', (event, target_data) => {
+  notification_setting = target_data;
+  saveDataSync(NOTIFICATION_SETTING_FILE_NAME, notification_setting);
+});
+
+
 
 // main function
 function triggerTrayCmd(param) {
@@ -326,7 +306,14 @@ function triggerTrayCmd(param) {
       if (mainWindow.isMinimized() || !mainWindow.isVisible()) {
         mainWindow.show();
       } else {
-        mainWindow.minimize();
+        mainWindow.close();
+      }
+      break; 
+    case 'NOTIFICATION':
+      if (notifyWindow) {
+        notifyWindow.show();
+      } else {
+        openNotificationWindow();
       }
       break;
     case 'EXIT':
@@ -368,9 +355,43 @@ function loadDataSync(file_name) {
   return output;
 }
 
+function openNotificationWindow(){
+  if (!notifyWindow) {
+    console.log('open Notification Window');
+    notifyWindow = new BrowserWindow({
+      icon: path.join(__dirname, 'ChaldeaStockObservatory.png'),
+      webPreferences: {
+        nodeIntegration: true
+      },
+      width: 900, height: 650
+    });
+
+    notifyWindow.loadURL(`file://${__dirname}/notification.html`);
+
+    notifyWindow.on('closed', () => {
+      notifyWindow = null
+    })
+  }
+}
 
 // Notification-Core event
 function NotificationCoreEvent(_notification_status){
   notification_status = _notification_status;
-  console.log(notification_status);
+  //console.log(notification_status);
+  if (notifyWindow) {
+    notifyWindow.webContents.send('syncNotificationStatus', notification_status);
+  }
+
+  if (mainWindow){
+    let trigger = false;
+    notification_status.data.some(function (item) {
+      if (item.messages.length > 0){
+        trigger = true;
+        return true;
+      }
+      return false;
+    });
+
+    mainWindow.webContents.send('notificationTrigger', trigger);
+  }
 }

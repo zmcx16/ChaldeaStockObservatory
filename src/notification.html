@@ -26,7 +26,9 @@
               <path d="M0 0h48v48H0z" fill="none" />
             </svg>
           </div>
-      </div>
+          <p class="add-popup-text" style="padding-left: 5px;line-height: 120%">Enter stock symbols</p>
+          <p class="add-popup-text" style="padding-left: 5px;line-height: 120%">Tip: Use comma to separate multiple quotes</p>
+        </div>
       <div class="main-tool"><button class="text-btn" id="reorder-button">Reorder</button></div>
       <div class="main-tool"></div>
       <div class="main-tool"><span id="last-update-time"><div class="led-green" id="last-update-time-led"></div>06/18&nbsp;&nbsp;&nbsp;01:40:18</span></div>
@@ -54,22 +56,60 @@
     <div id="edit-dialog-hidden-btn" style="display:none;" data-toggle="modal" data-target="#edit-dialog"></div>
     <div id="edit-dialog" class="modal inmodal fade" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static"
       data-keyboard="true">
-      <div class="modal-dialog modal-lg">
+      <div class="modal-dialog modal-lg modal-edit">
         <div class="modal-content">
           <div class="modal-header">
-            <div class="modal-title"></div>
-            <div id="edit-dialog-content"></div>
+            <div class="modal-title" id="edit-dialog-title"></div>
             <div id="edit-dialog-text-invalid" style="display:none;"></div>
             <button type="button" class="close edit-dialog-close" data-dismiss="modal">
               <span>&times;</span>
             </button>
           </div>
           <div class="modal-body">
-            <input type="text" id="edit-dialog-text" name="edit-dialog-text-name">
+            <div class="modal-body edit-container">
+              <div class="edit-menu">
+                <div class="dropdown edit-dropdown">
+                  <button class="btn btn-secondary2 dropdown-toggle" type="button" id="edit-dropdown-btn" data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false">
+                    Conditions
+                  </button>
+                  <div class="dropdown-menu edit" aria-labelledby="dropdownMenuButton"></div>
+                </div>
+                <div class="edit-args">
+                  <div class="arg-label-text">
+                  </div>
+                </div>
+                <div class="edit-menu-footer">
+                  <button class="btn anime-btn ok-cancel-btn" id="edit-add-btn">Add</button>
+                  <button class="btn anime-btn ok-cancel-btn" id="edit-clear-btn">Clear</button>
+                </div>
+              </div>
+              <div></div>
+              <div class="edit-values">
+              </div>
+            </div>
           </div>
           <div class="modal-footer">
             <button class="btn anime-btn ok-cancel-btn" id="edit-dialog-ok-btn">OK</button>
             <button class="btn anime-btn ok-cancel-btn edit-dialog-close" data-dismiss="modal">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="check-dialog-hidden-btn" style="display:none;" data-toggle="modal" data-target="#check-dialog"></div>
+    <div id="check-dialog" class="modal inmodal fade" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static"
+      data-keyboard="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <div class="modal-title " id="check-dialog-title"></div>
+            <button type="button" class="close  check-dialog-close" data-dismiss="modal">
+              <span>&times;</span>
+            </button>
+          </div>
+          <div class="modal-footer">
+            <button class="btn anime-btn ok-cancel-btn" id="check-dialog-ok-btn">OK</button>
+            <button class="btn anime-btn ok-cancel-btn" data-dismiss="modal">Cancel</button>
           </div>
         </div>
       </div>

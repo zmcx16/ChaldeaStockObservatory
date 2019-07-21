@@ -12,6 +12,7 @@ var input_dialog_now='';
 var check_dialog_now = '';
 var update_status = {};     //'key': bool
 var enable_sync = false;
+var force_update = true;
 
 //interval
 // eslint-disable-next-line no-unused-vars
@@ -50,11 +51,20 @@ ipc.on('doSaveStockData', () => {
 
 ipc.on('syncConfigData', (event, data) => {
   setting_data = data;
+  updateOHLCV();
+});
+
+ipc.on('notificationTrigger', (event, trigger) => {
+  if (trigger){
+    $("#notifications-icon-img-color").attr("style", "animation: flash 2s ease infinite;");
+  }
+  else{
+    $("#notifications-icon-img-color").attr("style", "animation: none;");
+  }
 });
 
 // OnStart
 $(document).ready(function () {
-
   stock_data = ipc.sendSync('loadStockData');
 
   if (Object.keys(stock_data).length === 0){
@@ -269,28 +279,38 @@ function updateOHLCV(){
   enable_sync = needEnableSync(setting_data['data']['sync']);
 
   // update UI
-  let list_index = $("#group-list-select")[0].selectedIndex;
-  let now_stocks = stock_data['ListView'][list_index].data;
-  now_stocks.forEach(function (item) {
-    sendCmdToCore('get_realtime_stock', item.symbol, (error, res) => {
-      if (error) {
-        console.error(error);
-      } else {
-        //console.log(res);
-        updateOHLCV_UI(res, enable_sync, update_status);
-      }
+  if (enable_sync || force_update) {
+    let list_index = $("#group-list-select")[0].selectedIndex;
+    let now_stocks = stock_data['ListView'][list_index].data;
+    now_stocks.forEach(function (item) {
+      sendCmdToCore('get_realtime_stock', item.symbol, (error, res) => {
+        if (error) {
+          console.error(error);
+        } else {
+          //console.log(res);
+          item['openP'] = res['openP'];
+          item['highP'] = res['highP'];
+          item['lowP'] = res['lowP'];
+          item['closeP'] = res['closeP'];
+          item['volume'] = res['volume'];
+          item['changeP'] = res['changeP'];
+          updateOHLCV_UI("app", res, enable_sync, update_status);
+        }
+      });
     });
-  });
+
+    force_update = false;
+  }else{
+    updateSyncLed(false);
+  }
 
   clearInterval(update_OHLCV_interval);
-  
-  if (enable_sync){
-    let update_time = setting_data['data']['sync']['interval'];
-    if (update_time && update_time < MIN_UPDATE_TIME) {
-      update_time = MIN_UPDATE_TIME;
-    }
-    update_OHLCV_interval = setInterval(updateOHLCV, update_time * 1000); 
+  let update_time = setting_data['data']['sync']['interval'];
+  if (update_time && update_time < MIN_UPDATE_TIME) {
+    update_time = MIN_UPDATE_TIME;
   }
+  update_OHLCV_interval = setInterval(updateOHLCV, update_time * 1000); 
+
 
 }
 
