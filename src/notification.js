@@ -350,15 +350,18 @@ function initStockSetting() {
     $(".item").remove();
 
     notification_setting.data.forEach(function (setting_item) {
+        let status_exist = false;
         notification_status.data.some(function (status_item) {
             if (setting_item.symbol === status_item.symbol) {
                 addStock(status_item.symbol, status_item.openP, status_item.highP, status_item.lowP, status_item.closeP, status_item.changeP, status_item.volume, setting_item.enable);
+                status_exist = true;
                 return true;
             }
-            else{
-                return false;
-            }
+            return false;
         });
+
+        if (!status_exist)
+            addStock(setting_item.symbol, "-", "-", "-", "-", "0%", "-", setting_item.enable);
     });
 
     updateStocksColor();
