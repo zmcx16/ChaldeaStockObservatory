@@ -40,6 +40,13 @@
 
 ![image](https://github.com/zmcx16/ChaldeaStockObservatory/blob/master/demo/demo1.png)
 
+# Overview
+
+![image](https://github.com/zmcx16/ChaldeaStockObservatory/blob/master/demo/overview.gif)
+
+# Notification
+
+![image](https://github.com/zmcx16/ChaldeaStockObservatory/blob/master/demo/notification.gif)
 
 # Reference
 1. Darryl Dixon Piece Digital/Click-n-drag list rearranging - (https://codepen.io/piecedigital/pen/VLyrLo) - MIT License
