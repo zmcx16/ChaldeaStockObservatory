@@ -92,6 +92,10 @@ const menu_template = [
 // app register
 app.on('ready', () => {
   let icon = path.join(__dirname, "","tray-icon.png");
+  if (platform == 'darwin') {
+    icon = path.join(__dirname, "", "tray-icon-mac.png");
+  }
+
   appIcon = new Tray(icon);
   let contextMenu = Menu.buildFromTemplate(tray_list.map(addCmdToTrayMenu));
   appIcon.setToolTip('Chaldea Stock Observatory');
