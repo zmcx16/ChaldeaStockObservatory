@@ -199,6 +199,8 @@ app.on('ready', () => {
     event.sender.send('doSaveStockData');
     event.preventDefault();
     mainWindow.hide();
+    if (platform == 'darwin')
+      app.dock.hide();
   })
 
 });
@@ -208,7 +210,6 @@ app.on('will-quit', () => {
   core_proc.kill();
   core_proc = null;
 });
-
 
 // ipc register
 ipc.on('getPort', (event) => {
