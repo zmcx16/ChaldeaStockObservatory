@@ -3,8 +3,11 @@
 
 # Features
 1.	Automatic download real-time stock data
-2.	Stock Screener 		(TBD)
-3.  Stock Notification 	(TBD)
+2.  Stock Notification
+	* Arrival Price
+	* Trailing Stop
+3.	Stock Screener 		(TBD)
+
 
 # Support Platform 
   * Windows - Windows 10
@@ -49,7 +52,8 @@
 ![image](https://github.com/zmcx16/ChaldeaStockObservatory/blob/master/demo/notification.gif)
 
 # Reference
-1. Darryl Dixon Piece Digital/Click-n-drag list rearranging - (https://codepen.io/piecedigital/pen/VLyrLo) - MIT License
+1. Darryl Dixon Piece Digital / Click-n-drag list rearranging - (https://codepen.io/piecedigital/pen/VLyrLo) - MIT License
+2. F. Stephen Kirschbaum / CSS LED Lights - (https://codepen.io/fskirschbaum/pen/MYJNaj) - MIT License
 
 # License
 This project is licensed under the terms of the MIT license.
